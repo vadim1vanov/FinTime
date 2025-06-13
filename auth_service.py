@@ -3,23 +3,23 @@ import psycopg2
 import hashlib
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Замените на безопасный ключ
+app.secret_key = 'your_secret_key'  
 
-# Подключение к базе данных
+
 def get_db_connection():
     conn = psycopg2.connect(
         host="localhost",
         database="fintime",
-        user="postgres",  # Замените на ваше имя пользователя PostgreSQL
-        password="postgres"  # Замените на ваш пароль PostgreSQL
+        user="postgres",  
+        password="postgres"  
     )
     return conn
 
-# Хеширование пароля
+
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-# Маршрут для входа
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -38,7 +38,7 @@ def login():
             return "Неверные учетные данные"
     return render_template('login.html')
 
-# Маршрут для регистрации
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -68,7 +68,7 @@ def register():
             return "Email уже существует"
     return render_template('register.html')
 
-# Маршрут для выхода
+
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)

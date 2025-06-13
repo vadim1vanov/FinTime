@@ -23,23 +23,95 @@
             background-color: #f6f7f8;
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: grid;
+            grid-template-columns: 280px 1fr; /* Широкое меню слева */
+            gap: 30px;
+            padding: 20px;
+        }
+        
+        /* Боковое меню */
+        .side-menu {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px 0;
+            /*box-shadow: 0 10px 30px rgba(0,0,0,0.05);*/
+            height: calc(100vh - 40px); /* Занимает почти всю высоту экрана */
+            position: sticky;
+            top: 20px;
+            overflow-y: auto;
+            width: 350px;
+        }
+        
+        .menu-title {
+            padding: 0 30px 20px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color:#363636;
+            /*border-bottom: 2px solid #E9ECEF;*/
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .menu-item {
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+            color: var(--dark-gray);
+            text-decoration: none;
+            position: relative;
+            font-size: 1.1rem;
+        }
+        
+        .menu-item:hover {
+            background: var(--light-bg);
+            color: var(--black);
+        }
+        
+        .menu-item.active {
+            color: var(--black);
+            font-weight: 600;
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .menu-item.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: var(--gold);
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .menu-item i {
+            margin-right: 15px;
+            width: 28px;
+            text-align: center;
+            font-size: 1.3rem;
+            color: var(--gold);
         }
         
         .profile-container {
-            max-width: 1200px;
-            margin: 40px auto;
+            max-width: 2400px;
+            margin: 0 auto;
             padding: 0 20px;
+            width: 100%;
+            
+            
         }
         
         .profile-header {
             background: linear-gradient(135deg, var(--yellow) 0%, var(--gold) 100%);
             padding: 30px 40px;
-            border-radius: 20px 20px 0 0;
+            border-radius: 20px;
             color: var(--black);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            /*box-shadow: 0 5px 15px rgba(0,0,0,0.05);*/
+            margin-bottom: 30px;
         }
         
         .brand-logo {
@@ -121,34 +193,71 @@
         }
         
         .profile-body {
-            background: var(--white);
-            padding: 40px;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+        background: var(--white);
+        padding: 80px 40px 120px 40px;
+        border-radius: 20px;
+        /*box-shadow: 0 10px 30px rgba(0,0,0,0.05);*/
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 0px;
+        height: calc(100vh - 200px);
+       }
+        
+        @media (max-width: 1200px) {
+            .profile-body {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                grid-template-columns: 1fr;
+                padding: 20px 10px;
+            }
+            
+            .side-menu {
+                height: auto;
+                position: relative;
+                top: 0;
+                margin-bottom: 20px;
+            }
         }
         
         @media (max-width: 768px) {
             .profile-body {
-                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .profile-header {
+                padding: 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-greeting {
+                padding-left: 0;
+                margin: 20px 0;
+            }
+            
+            .user-greeting::before {
+                display: none;
             }
         }
         
         .profile-section {
             background: var(--light-bg);
             border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+            padding: 25px 60px;
+           
+            height: 900px;
         }
+
         
         .section-title {
             color: var(--dark-gray);
             font-weight: 700;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 2px solid var(--light-yellow);
+            border-bottom: 2px solid var(--light-gray);
             font-size: 1.5rem;
         }
         
@@ -278,7 +387,7 @@
         
         .btn-save:hover {
             background: linear-gradient(135deg, var(--light-yellow) 0%, var(--yellow) 100%);
-            transform: translateY(-2px);
+            
             box-shadow: 0 7px 20px rgba(255, 193, 7, 0.3);
         }
         
@@ -360,9 +469,106 @@
             border-left-color: #dc3545;
             color: #dc3545;
         }
+        .menu-title{
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            padding-right: 74px;
+        }
+        .menu-title span{
+            padding-left: 20px;
+        }
+        .menu-title i{
+            font-size: 19px;
+        }
+        .info-avatar-menu {
+            width: 20%;
+            padding-left: 0;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--white);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+        .info-avatar-menu i {
+            font-size: 40px;
+            color: var(--gold);
+        }
+        .profile-section-statistic{
+            padding: 40px 40px 80px;
+            background: var(--light-bg);
+            border-radius: 15px;
+        }
+        .profile-section-latest{
+            
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 25px 40px 80px;
+            margin-bottom: 0;
+            height: 435px;
+        }
+
+        .profile-section-right {
+            height: 900px;
+            border-radius: 15px;
+            
+            
+        }
     </style>
 </head>
 <body>
+
+    <div class="side-menu">
+        <div class="menu-title">                    <div class="info-avatar-menu">
+                        <i class="fas fa-user-circle"></i>
+                    </div><span>{{ first_name }} {{ last_name }}</span></div>
+        <a href="#" class="menu-item active">
+            <i class="fas fa-user"></i>
+            Личный кабинет
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-wallet"></i>
+            Управление счетами
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-chart-pie"></i>
+            Отчёты
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-chart-line"></i>
+            Аналитика
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-cog"></i>
+            Настройки
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-question-circle"></i>
+            Помощь
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-history"></i>
+            История операций
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-credit-card"></i>
+            Платежи
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-exchange-alt"></i>
+            Переводы
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-bell"></i>
+            Уведомления
+        </a>
+    </div>
+    
+    <!-- Основной контент (profile-container без изменений) -->
     <div class="profile-container">
         <div class="profile-header">
             <div class="d-flex align-items-center">
@@ -451,51 +657,69 @@
                 </form>
             </div>
             
-            <div class="profile-section">
-                <h2 class="section-title">Статистика</h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">24</div>
-                        <div class="stat-label">Активных счета</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">128</div>
-                        <div class="stat-label">Транзакций</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">5</div>
-                        <div class="stat-label">Категорий</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Подключенных банка</div>
+            <div class="profile-section-right">
+                <div class="profile-section-statistic">
+                    <h2 class="section-title">Статистика</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Активных счета</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">128</div>
+                            <div class="stat-label">Транзакций</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">5</div>
+                            <div class="stat-label">Категорий</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Подключенных банка</div>
+                        </div>
                     </div>
                 </div>
-                
+
+
                 <div class="mt-4">
-                    <h3 class="section-title">Последние действия</h3>
-                    <div class="info-item">
-                        <div class="info-label">Сегодня</div>
-                        <div class="info-value">{{ first_name }} пополнил счет на +5 000 ₽</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Вчера</div>
-                        <div class="info-value">{{ first_name }} оплатил коммунальные услуги</div>
-                    </div>
-                    <div class="info-item" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
-                        <div class="info-label">15.06.2025</div>
-                        <div class="info-value">{{ first_name }} выполнил перевод между счетами</div>
+                    <div class="profile-section-latest">
+                        <h3 class="section-title">Последние действия</h3>
+                        <div class="info-item">
+                            <div class="info-label">Сегодня</div>
+                            <div class="info-value">{{ first_name }} пополнил счет на +5 000 ₽</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Вчера</div>
+                            <div class="info-value">{{ first_name }} оплатил коммунальные услуги</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">15.06.2025</div>
+                            <div class="info-value">{{ first_name }} выполнил перевод между счетами</div>
+                        </div>
+                                                <div class="info-item">
+                            <div class="info-label">10.06.2025</div>
+                            <div class="info-value">{{ first_name }} пополнил счет на +20 000 ₽</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">01.06.2025</div>
+                            <div class="info-value">{{ first_name }} оплатил коммунальные услуги</div>
+                        </div>
+                        <div class="info-item" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+                            <div class="info-label">25.05.2025</div>
+                            <div class="info-value">{{ first_name }} выполнил перевод между счетами</div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="footer">
-            © 2025 FinTime. Все права защищены.
-        </div>
-    </div>
 
+    </div>
+        <!-- <div class="footer">
+            © 2025 FinTime. Все права защищены.
+        </div> -->
     <script>
         // Фокусировка на поле при клике на иконку карандаша
         document.querySelectorAll('.edit-icon').forEach(icon => {
@@ -506,6 +730,17 @@
                     input.focus();
                     input.select();
                 }
+            });
+        });
+        
+        // Подсветка активного пункта меню
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.menu-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                this.classList.add('active');
             });
         });
     </script>

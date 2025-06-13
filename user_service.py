@@ -2,19 +2,19 @@ from flask import Flask, render_template, session, redirect, url_for, request, f
 import psycopg2
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Замените на безопасный ключ
+app.secret_key = 'your_secret_key'  
 
 # Подключение к базе данных
 def get_db_connection():
     conn = psycopg2.connect(
         host="localhost",
         database="fintime",
-        user="postgres",  # Замените на ваше имя пользователя PostgreSQL
-        password="postgres"  # Замените на ваш пароль PostgreSQL
+        user="postgres",  
+        password="postgres"  
     )
     return conn
 
-# Маршрут для профиля
+
 @app.route('/profile')
 def profile():
     if 'user_id' not in session:
@@ -33,18 +33,18 @@ def profile():
     else:
         return "Пользователь не найден"
 
-# Маршрут для обновления профиля
+
 @app.route('/profile/update', methods=['POST'])
 def update_profile():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    # Получаем данные из формы
+    
     first_name = request.form['first_name'].strip()
     last_name = request.form['last_name'].strip()
     email = request.form['email'].strip().lower()
     
-    # Валидация данных
+    
     errors = []
     if not first_name:
         errors.append("Имя не может быть пустым")
@@ -64,13 +64,13 @@ def update_profile():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Проверяем уникальность email
+        
         cur.execute("SELECT id FROM users WHERE email = %s AND id != %s", (email, session['user_id']))
         if cur.fetchone():
             flash("Пользователь с таким email уже существует", 'danger')
             return redirect('/profile')
         
-        # Обновляем данные
+        
         cur.execute("""
             UPDATE users 
             SET first_name = %s, last_name = %s, email = %s
