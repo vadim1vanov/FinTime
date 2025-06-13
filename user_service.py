@@ -18,7 +18,7 @@ def get_db_connection():
 @app.route('/profile')
 def profile():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect('http://localhost:5000/login')
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT first_name, last_name, email FROM users WHERE id = %s", (session['user_id'],))

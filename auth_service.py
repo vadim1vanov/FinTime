@@ -52,9 +52,15 @@ def register():
             cur.execute("INSERT INTO users (first_name, last_name, email, password) VALUES (%s, %s, %s, %s)",
                         (first_name, last_name, email, password))
             conn.commit()
+            cur.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
+            user = cur.fetchone()
             cur.close()
             conn.close()
-            return redirect(url_for('login'))
+            if user:
+                session['user_id'] = user[0]
+                return redirect('http://localhost:5001/profile')
+            else:
+                return "Неверные учетные данные"
         except psycopg2.IntegrityError:
             conn.rollback()
             cur.close()
