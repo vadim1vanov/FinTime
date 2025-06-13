@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет | FinTime</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --white: #FFFFFF;
+            --light-bg: #F8F9FA;
+            --light-gray: #E9ECEF;
+            --dark-gray: #495057;
+            --black: #212529;
+            --yellow: #FFD700;
+            --gold: #FFC107;
+            --light-yellow: #FFEE58;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            background-color: #f6f7f8;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .profile-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--yellow) 0%, var(--gold) 100%);
+            padding: 30px 40px;
+            border-radius: 20px 20px 0 0;
+            color: var(--black);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .brand-logo {
+            font-size: 2.8rem;
+            font-weight: 800;
+            position: relative;
+            text-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .brand-logo .fin {
+            color: var(--black);
+            letter-spacing: -1px;
+        }
+
+        .brand-logo .time {
+            color: var(--gold);
+            position: relative;
+        }
+
+        .brand-logo .time::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+            border-radius: 3px;
+        }
+
+        .user-greeting {
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .user-greeting::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 60%;
+            width: 3px;
+            background: var(--gold);
+            border-radius: 3px;
+        }
+
+        .greeting-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--black);
+            letter-spacing: 0.5px;
+        }
+
+        .greeting-subtitle {
+            font-size: 1.1rem;
+            color: var(--dark-gray);
+            margin-bottom: 0;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+        
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--black);
+            border: none;
+            padding: 10px 25px;
+            font-weight: 400;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .profile-body {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-body {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .profile-section {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+        }
+        
+        .section-title {
+            color: var(--dark-gray);
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-yellow);
+            font-size: 1.5rem;
+        }
+        
+        .user-info {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .info-avatar {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--white);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .info-avatar i {
+            font-size: 85px;
+            color: var(--gold);
+        }
+        
+        .info-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .info-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--black);
+        }
+        
+        .info-email {
+            font-size: 1.1rem;
+            color: var(--dark-gray);
+            margin-bottom: 15px;
+        }
+        
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+            display: block;
+            font-size: 1rem;
+        }
+        
+        .input-container {
+            position: relative;
+        }
+        
+        .input-container .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+            z-index: 2;
+        }
+        
+        .input-container .edit-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold);
+            cursor: pointer;
+            z-index: 2;
+            transition: all 0.3s;
+        }
+        
+        .input-container .edit-icon:hover {
+            color: var(--yellow);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .form-control {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            color: var(--black);
+            padding: 14px 18px 14px 45px;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            height: 52px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .form-control:focus {
+            background: var(--white);
+            border-color: var(--gold);
+            box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+            outline: none;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, var(--yellow) 0%, var(--gold) 100%);
+            color: var(--black);
+            border: none;
+            padding: 12px 25px;
+            font-weight: 400;
+            border-radius: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+            font-size: 1.05rem;
+            margin: 20px auto 0;
+            display: block;
+            width: 200px;
+        }
+        
+        .btn-save:hover {
+            background: linear-gradient(135deg, var(--light-yellow) 0%, var(--yellow) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(255, 193, 7, 0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--dark-gray);
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .info-label {
+            font-weight: 600;
+            width: 150px;
+            color: var(--dark-gray);
+            font-size: 1rem;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: var(--black);
+            font-weight: 500;
+            font-size: 1.05rem;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+        
+        .alert {
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-left: 3px solid;
+        }
+        
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            border-left-color: #28a745;
+            color: #28a745;
+        }
+        
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="d-flex align-items-center">
+                <div class="brand-logo me-4">
+                    <span class="fin">FinTime</span>
+                </div>
+                <div class="user-greeting">
+                    <h1 class="greeting-title">Личный кабинет</h1>
+                    <p class="greeting-subtitle">Система финансового учета</p>
+                </div>
+            </div>
+            <a href="http://localhost:5000/logout" class="btn btn-logout">
+                <i class="fas fa-sign-out-alt me-2"></i>Выйти
+            </a>
+        </div>
+        
+        <div class="profile-body">
+            <div class="profile-section">
+                <h2 class="section-title">Профиль пользователя</h2>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+                                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }} me-2"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <div class="user-info">
+                    <div class="info-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-name">{{ first_name }} {{ last_name }}</div>
+                        <div class="info-email">{{ email }}</div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="/profile/update" class="edit-form">
+                    <div class="form-group">
+                        <label for="first_name" class="form-label">Имя</label>
+                        <div class="input-container">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" 
+                                class="form-control" 
+                                id="first_name" 
+                                name="first_name"
+                                value="{{ first_name }}"
+                                required>
+                            <i class="fas fa-pencil-alt edit-icon" data-target="first_name"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name" class="form-label">Фамилия</label>
+                        <div class="input-container">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" 
+                                class="form-control" 
+                                id="last_name" 
+                                name="last_name"
+                                value="{{ last_name }}"
+                                required>
+                            <i class="fas fa-pencil-alt edit-icon" data-target="last_name"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-container">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" 
+                                class="form-control" 
+                                id="email" 
+                                name="email"
+                                value="{{ email }}"
+                                required>
+                            <i class="fas fa-pencil-alt edit-icon" data-target="email"></i>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-save">Сохранить</button>
+                </form>
+            </div>
+            
+            <div class="profile-section">
+                <h2 class="section-title">Статистика</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Активных счета</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">128</div>
+                        <div class="stat-label">Транзакций</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Категорий</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Подключенных банка</div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h3 class="section-title">Последние действия</h3>
+                    <div class="info-item">
+                        <div class="info-label">Сегодня</div>
+                        <div class="info-value">{{ first_name }} пополнил счет на +5 000 ₽</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Вчера</div>
+                        <div class="info-value">{{ first_name }} оплатил коммунальные услуги</div>
+                    </div>
+                    <div class="info-item" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+                        <div class="info-label">15.06.2025</div>
+                        <div class="info-value">{{ first_name }} выполнил перевод между счетами</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2025 FinTime. Все права защищены.
+        </div>
+    </div>
+
+    <script>
+        // Фокусировка на поле при клике на иконку карандаша
+        document.querySelectorAll('.edit-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | FinTime</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --white: #FFFFFF;
+            --light-bg: #F8F9FA;
+            --light-gray: #E9ECEF;
+            --dark-gray: #495057;
+            --black: #212529;
+            --yellow: #FFD700;
+            --gold: #FFC107;
+            --light-yellow: #FFEE58;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            background-color: #f6f7f8;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .auth-container {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .auth-card {
+            background: var(--white);
+            border-radius: 20px;
+            border: none;
+            overflow: hidden;
+        }
+        
+        .auth-header {
+            background: #ffffff;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid #E9ECEF;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(255, 215, 0, 0.05) 0%, transparent 20%);
+            z-index: 0;
+        }
+        
+        .brand-logo {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: var(--black);
+            text-shadow: 0 2px 4px var(--shadow);
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        .brand-subtitle {
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            position: relative;
+        }
+        
+        .auth-body {
+            padding: 40px 35px;
+            background: var(--white);
+        }
+        
+        .form-label {
+            color: var(--dark-gray);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            background: var(--light-bg);
+            border: 1px solid var(--light-gray);
+            color: var(--black);
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            background: var(--white);
+            border-color: var(--yellow);
+            box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.15);
+            color: var(--black);
+            outline: none;
+        }
+        
+        .form-control::placeholder {
+            color: rgba(33, 37, 41, 0.4);
+        }
+        
+        .input-group-text {
+            background: var(--light-bg);
+            border: 1px solid var(--light-gray);
+            color: var(--dark-gray);
+            border-radius: 12px 0 0 12px;
+        }
+        
+        .btn-auth {
+            background: linear-gradient(135deg, var(--yellow) 0%, var(--gold) 100%);
+            color: var(--black);
+            border: none;
+            padding: 16px 30px;
+            font-weight: 700;
+            border-radius: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 20px rgba(255, 193, 7, 0.25);
+            font-size: 1.05rem;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .divider-text {
+            color: var(--dark-gray);
+            padding: 0 15px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            font-weight: 500;
+        }
+        
+        .social-btn {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            color: var(--dark-gray);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px var(--shadow);
+        }
+        
+        .auth-footer {
+            color: var(--dark-gray);
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .auth-footer a {
+            color: var(--black);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 2px solid var(--yellow);
+        }
+        
+        .error-message {
+            background: rgba(255, 87, 87, 0.08);
+            border-left: 3px solid #ff5252;
+            color: #ff5252;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+            cursor: pointer;
+            z-index: 10;
+            background: transparent;
+            border: none;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .password-requirements {
+            background: rgba(255, 215, 0, 0.05);
+            border-left: 3px solid var(--yellow);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+        }
+        
+        .password-requirements ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+        
+        .password-requirements li {
+            margin-bottom: 5px;
+        }
+        
+        .password-requirements li:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container auth-container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <div class="brand-logo">Fin<span>Time</span></div>
+                        <div class="brand-subtitle">СИСТЕМА ФИНАНСОВОГО УЧЕТА</div>
+                    </div>
+                    
+                    <div class="auth-body">
+                        <h3 class="text-center mb-5" style="color: var(--black);">СОЗДАНИЕ АККАУНТА</h3>
+                        
+                        {% if error %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                        </div>
+                        {% endif %}
+                        
+                        <form id="registerForm" method="POST" action="/auth/register">
+                            <div class="mb-4">
+                                <label for="first_name" class="form-label">Имя</label>
+                                <input type="text" 
+                                    class="form-control form-control-lg" 
+                                    id="first_name" 
+                                    name="first_name"
+                                    placeholder="Иван"
+                                    required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="last_name" class="form-label">Фамилия</label>
+                                <input type="text" 
+                                    class="form-control form-control-lg" 
+                                    id="last_name" 
+                                    name="last_name"
+                                    placeholder="Иванов"
+                                    required>
+                            </div>
+                                            
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" 
+                                           class="form-control form-control-lg" 
+                                           id="email" 
+                                           name="email"
+                                           placeholder="your@email.com"
+                                           required>
+                                </div>
+                            </div>
+                                            
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Пароль</label>
+                                <div class="password-container">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        <input type="password" 
+                                               class="form-control form-control-lg" 
+                                               id="password" 
+                                               name="password"
+                                               placeholder="••••••••"
+                                               required>
+                                    </div>
+                                    <button type="button" class="password-toggle" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-requirements">
+                                    <strong>Требования к паролю:</strong>
+                                    <ul>
+                                        <li>Минимум 8 символов</li>
+                                        <li>Хотя бы одна заглавная буква</li>
+                                        <li>Хотя бы одна цифра</li>
+                                        <li>Хотя бы один специальный символ (!@#$%^&*)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                                            
+                            <div class="mb-5">
+                                <label for="confirmPassword" class="form-label">Подтверждение пароля</label>
+                                <div class="password-container">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        <input type="password" 
+                                               class="form-control form-control-lg" 
+                                               id="confirmPassword" 
+                                               name="confirmPassword"
+                                               placeholder="••••••••"
+                                               required>
+                                    </div>
+                                    <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                                            
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-auth btn-lg">
+                                    <i class="fas fa-user-plus me-3"></i>Создать аккаунт
+                                </button>
+                            </div>
+                                            
+                            <div class="auth-footer">
+                                <div>Уже есть аккаунт? <a href="/login">Войти в систему</a></div>
+                                <div class="mt-3">© 2025 FinTime. Все права защищены.</div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переключение видимости основного пароля
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+        
+        // Переключение видимости подтверждения пароля
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('confirmPassword');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+        
+        // Валидация формы регистрации
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const firstName = document.getElementById('first_name').value.trim();
+            const lastName = document.getElementById('last_name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Проверка обязательных полей
+            if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                e.preventDefault();
+                alert('Пожалуйста, заполните все обязательные поля');
+                return false;
+            }
+            
+            // Проверка email
+            if (!/\S+@\S+\.\S+/.test(email)) {
+                e.preventDefault();
+                alert('Пожалуйста, введите корректный email адрес');
+                return false;
+            }
+            
+            // Проверка совпадения паролей
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Пароли не совпадают');
+                return false;
+            }
+            
+            // Проверка сложности пароля
+            if (password.length < 8 || 
+                !/[A-Z]/.test(password) || 
+                !/[0-9]/.test(password) || 
+                !/[!@#$%^&*]/.test(password)) {
+                e.preventDefault();
+                alert('Пароль не соответствует требованиям безопасности');
+                return false;
+            }
+            
+            // Показать эффект загрузки
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-3"></i>Регистрация...';
+            submitBtn.disabled = true;
+            
+            return true;
+        });
+    </script>
+</body>
+</html>
