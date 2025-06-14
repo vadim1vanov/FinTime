@@ -71,7 +71,7 @@
         .menu-item.active {
             color: var(--black);
             font-weight: 600;
-            background: rgba(255, 215, 0, 0.1);
+            background:  #f6f7f8;
         }
         
         .menu-item.active::before {
@@ -522,51 +522,53 @@
 </head>
 <body>
 
-    <div class="side-menu">
-        <div class="menu-title">                    <div class="info-avatar-menu">
-                        <i class="fas fa-user-circle"></i>
-                    </div><span>{{ first_name }} {{ last_name }}</span></div>
-        <a href="#" class="menu-item active">
+       <div class="side-menu">
+        <div class="menu-title">
+            <div class="info-avatar-menu">
+                <i class="fas fa-user-circle"></i>
+            </div><span>{{ first_name }} {{ last_name }}</span>
+        </div>
+        <a href="http://localhost:5001/profile" class="menu-item" data-path="/profile">
             <i class="fas fa-user"></i>
             Личный кабинет
         </a>
-        <a href="#" class="menu-item">
+        <a href="http://localhost:5002/accounts" class="menu-item" data-path="/accounts">
             <i class="fas fa-wallet"></i>
             Управление счетами
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" data-path="/reports">
             <i class="fas fa-chart-pie"></i>
             Отчёты
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" data-path="/analytics">
             <i class="fas fa-chart-line"></i>
             Аналитика
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" data-path="/settings">
             <i class="fas fa-cog"></i>
             Настройки
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" data-path="/help">
             <i class="fas fa-question-circle"></i>
             Помощь
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" data-path="/history">
             <i class="fas fa-history"></i>
             История операций
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" data-path="/payments">
             <i class="fas fa-credit-card"></i>
             Платежи
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" data-path="/transfers">
             <i class="fas fa-exchange-alt"></i>
             Переводы
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" data-path="/notifications">
             <i class="fas fa-bell"></i>
             Уведомления
         </a>
-    </div>
+    </div
     
     <!-- Основной контент (profile-container без изменений) -->
     <div class="profile-container">
@@ -720,27 +722,35 @@
         <!-- <div class="footer">
             © 2025 FinTime. Все права защищены.
         </div> -->
-    <script>
-        // Фокусировка на поле при клике на иконку карандаша
-        document.querySelectorAll('.edit-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const input = document.getElementById(targetId);
-                if (input) {
-                    input.focus();
-                    input.select();
+
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Определяем текущий путь
+            const currentPath = window.location.pathname;
+            
+            // Находим пункт меню, соответствующий текущему пути
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const itemPath = item.getAttribute('data-path');
+                
+                // Удаляем активный класс у всех элементов
+                item.classList.remove('active');
+                
+                // Проверяем соответствие пути
+                if (itemPath === currentPath) {
+                    item.classList.add('active');
                 }
             });
-        });
-        
-        // Подсветка активного пункта меню
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.menu-item').forEach(i => {
-                    i.classList.remove('active');
+            
+            // Обработка кликов по иконкам редактирования
+            document.querySelectorAll('.edit-icon').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (input) {
+                        input.focus();
+                        input.select();
+                    }
                 });
-                this.classList.add('active');
             });
         });
     </script>
