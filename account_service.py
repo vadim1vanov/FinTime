@@ -3,9 +3,17 @@ from flask import Flask, render_template, session, redirect, url_for, request, f
 import psycopg2
 from decimal import Decimal
 
+def format_currency(value):
+    try:
+        # Форматируем число с пробелами между тысячами и двумя знаками после запятой
+        return "{:,.2f}".format(float(value)).replace(",", " ")
+    except (ValueError, TypeError):
+        return value
+
+
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Должно совпадать с ключом в других сервисах
-
+app.jinja_env.filters['format_currency'] = format_currency
 # Подключение к базе данных (такое же как в других сервисах)
 def get_db_connection():
     conn = psycopg2.connect(
