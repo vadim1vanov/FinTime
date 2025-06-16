@@ -251,7 +251,7 @@
         
         /* Секции контента */
         .balance-section {
-            margin-bottom: 40px;
+            margin-bottom: 0px;
         }
         
         .accounts-section {
@@ -261,7 +261,7 @@
         .section-title {
             color:#2b2f33;
             font-weight: 700;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 20px;
             display: flex;
             align-items: center;
@@ -296,6 +296,7 @@
             border: none;
             position: relative;
             overflow: hidden;
+            
         }
         
         /* Цветные полосы для валют */
@@ -361,7 +362,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
-            margin-top: 20px;
+            
         }
         
         .account-card {
@@ -374,11 +375,12 @@
             display: flex;
             flex-direction: column;
             cursor: pointer;
+            
         }
         
         .account-card:hover {
             transform: translateY(-5px);
-            border-color: var(--tinkoff-yellow);
+            box-shadow: 0 4px 24px rgba(180, 147, 0, 0.15);
         }
         
         .account-header-row {
@@ -556,7 +558,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 30px auto 0;
+            margin: 30px auto ;
             font-size: 1rem;
             background: var(--tinkoff-yellow);
         }
@@ -696,9 +698,9 @@
         
         .accounts-header {
             display: flex;
-            
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-top: 60px;
         }
         
 .add-account-btn {
@@ -716,8 +718,8 @@
 	cursor: pointer;
 	box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 	background: #ffc804;
-	margin-bottom: 38px;
-	margin-left: 40px;
+	margin-top: 0px;
+	margin-right: 40px;
 }
         
         .add-account-btn:hover {
@@ -819,3 +821,71 @@
                 grid-template-columns: 1fr;
             }
         }
+
+/* Стили для общего баланса */
+.balance-section .d-flex {
+    align-items: flex-end;
+}
+
+.total-balance-card {
+      background: #fff;
+    border-radius: 12px;
+    padding: 15px 20px;
+    border: none;
+    width: 400px;
+    margin-bottom: 20px;
+
+    
+}
+
+.total-balance-card .currency-amount {
+font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--tinkoff-black);
+  font-family: "Archivo", sans-serif;
+}
+
+.total-balance-card .form-select {
+border: 1px solid #ffc804;
+  color: #000;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  border-radius: 109px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 71px;
+  font-weight: 100;
+  background-color: #ffc804;
+    }
+
+.total-balance-card .form-select:focus {
+    border-color: #ecedee;
+    box-shadow: 0  0px 0px rgba(0, 0, 0, 0.15);
+    outline: none;
+}
+
+
+
+.total-balance-card .title-total-balance{
+    font-size: 18px;
+    margin-right: 25px;
+    font-weight: 400;
+}
+
+@media (max-width: 992px) {
+    .balance-section .d-flex {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .total-balance-card {
+        margin-top: 20px;
+        width: 100%;
+    }
+}
+
+.form-select form-select-sm ms-2 span {
+  display: inline-block; /* Необходимо для корректного вращения */
+  transform: rotate(180deg);
+  font-size: 20px;
+}

@@ -1,5 +1,5 @@
 # account_service.py
-from flask import Flask, render_template, session, redirect, url_for, request, flash
+from flask import Flask, json, render_template, session, redirect, url_for, request, flash
 import psycopg2
 from decimal import Decimal
 
@@ -82,14 +82,29 @@ def accounts():
             'currency': acc[2],
             'balance': acc[3]
         })
+    EXCHANGE_RATES = {
+    'USD': 90.5,
+    'EUR': 98.7,
+    'RUB': 1,
+    'GBP': 114.2,
+    'JPY': 0.61,
+    'CNY': 12.5,
+    'CHF': 102.3
+    }
     
+    total_balance_rub = 0
+    for currency, amount in totals:
+        rate = EXCHANGE_RATES.get(currency, 1)
+        total_balance_rub += float(amount) * rate
+
     return render_template(
         'accounts.html',
         first_name=first_name,
         last_name=last_name,
         accounts=accounts_list,
         totals=totals,
-        currencies=currencies
+        currencies=currencies,
+        total_balance_rub=total_balance_rub
     )
 
 # Маршрут для создания нового счета

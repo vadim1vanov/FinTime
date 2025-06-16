@@ -23,7 +23,7 @@
             <i class="fas fa-user"></i>
             Личный кабинет
         </a>
-        <a href="http://localhost:5002/accounts" class="menu-item" data-path="/accounts">
+        <a href="http://localhost:5002/accounts" class="menu-item active" data-path="/accounts">
             <i class="fas fa-wallet"></i>
             Управление счетами
         </a>
@@ -59,7 +59,6 @@
             <i class="fas fa-bell"></i>
             Уведомления
         </a>
-        
     </div>
     
     <div class="profile-container">
@@ -88,12 +87,33 @@
             </div>
             
             <!-- Секция общего баланса -->
-            <div class="balance-section">
-                <h2 class="section-title">
-                    <i class="fas fa-chart-pie"></i>
-                    <span>Общий баланс</span>
-                </h2>
-                
+            <div class="balance-section mt-6">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Общий баланс</span>
+                    </h2>
+                    
+                    <!-- Блок общего баланса -->
+                    <div class="total-balance-card">
+                        <div class="d-flex align-items-center justify-content-end">
+                            
+                            <div class="currency-amount">
+                                <span id="total-balance-value">{{ total_balance_rub | format_currency }}</span>
+                                <span class="currency-icon currency-rub">₽</span>
+                            </div>
+                            <select id="total-currency-select" class="form-select form-select-sm ms-2 ">
+                                <option value="RUB" selected>RUB</option>
+                                {% for currency in currencies %}
+                                    {% if currency[0] != 'RUB' %}
+                                    <option value="{{ currency[0] }}">{{ currency[0] }} </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
@@ -325,28 +345,67 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Определяем активный пункт меню
         document.addEventListener('DOMContentLoaded', function() {
-            // Определяем текущий путь
-            const currentPath = window.location.pathname;
+            // Курсы валют к рублю
+            const exchangeRates = {
+                'RUB': 1,
+                'USD': 90.5,
+                'EUR': 98.7,
+                'GBP': 114.2,
+                'JPY': 0.61,
+                'CNY': 12.5,
+                'CHF': 102.3
+            };
             
-            // Находим пункт меню, соответствующий текущему пути
+            // Символы валют
+            const currencySymbols = {
+                'USD': '$', 'EUR': '€', 'RUB': '₽', 
+                'GBP': '£', 'JPY': '¥', 'CNY': '¥', 'CHF': '₣'
+            };
+            
+            // Исходный общий баланс в рублях
+            const initialTotalBalance = parseFloat("{{ total_balance_rub }}".replace(/\s/g, ''));
+            
+            // Функция обновления отображения
+            function updateTotalBalance(currency) {
+                // Конвертируем баланс
+                const rate = exchangeRates[currency] || 1;
+                const convertedBalance = initialTotalBalance / rate;
+                
+                // Форматируем число
+                const formattedValue = new Intl.NumberFormat('ru-RU', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(convertedBalance);
+                
+                // Обновляем значение
+                document.getElementById('total-balance-value').textContent = formattedValue;
+                
+                // Обновляем иконку
+                const iconElement = document.querySelector('.total-balance-card .currency-icon');
+                iconElement.textContent = currencySymbols[currency] || '₽';
+                iconElement.className = 'currency-icon currency-' + currency.toLowerCase();
+            }
+            
+            // Инициализация
+            updateTotalBalance('RUB');
+            
+            // Обработчик изменения валюты
+            document.getElementById('total-currency-select').addEventListener('change', function() {
+                updateTotalBalance(this.value);
+            });
+            
+            // Обработка активного пункта меню
             document.querySelectorAll('.menu-item').forEach(item => {
                 const itemPath = item.getAttribute('data-path');
-                
-                // Удаляем активный класс у всех элементов
                 item.classList.remove('active');
-                
-                // Проверяем соответствие пути
-                if (itemPath === currentPath) {
+                if (itemPath === window.location.pathname) {
                     item.classList.add('active');
                 }
             });
             
             // Обработка модальных окон
             const depositModal = document.getElementById('depositModal');
-            const withdrawModal = document.getElementById('withdrawModal');
-            
             if (depositModal) {
                 depositModal.addEventListener('show.bs.modal', function(event) {
                     const button = event.relatedTarget;
@@ -357,6 +416,7 @@
                 });
             }
             
+            const withdrawModal = document.getElementById('withdrawModal');
             if (withdrawModal) {
                 withdrawModal.addEventListener('show.bs.modal', function(event) {
                     const button = event.relatedTarget;
