@@ -161,7 +161,12 @@ def delete_account(account_id):
         if not account or account[0] != session['user_id']:
             flash('Счет не найден или у вас нет прав для его удаления', 'danger')
         else:
+            # Удаляем связанные транзакции
+            cur.execute("DELETE FROM transactions WHERE account_id = %s", (account_id,))
+            
+            # Удаляем сам счет
             cur.execute("DELETE FROM accounts WHERE id = %s", (account_id,))
+            
             conn.commit()
             flash('Счет успешно удален', 'success')
     except Exception as e:
@@ -171,7 +176,44 @@ def delete_account(account_id):
         cur.close()
         conn.close()
     
+  
     return redirect(url_for('accounts'))
+
+
+
+# Маршрут для удаления счета
+@app.route('/accounts/all/delete/<int:account_id>', methods=['POST'])
+def delete_from_all_account(account_id):
+    if 'user_id' not in session:
+        return redirect('http://localhost:5000/login')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Проверяем, принадлежит ли счет пользователю
+        cur.execute("SELECT user_id FROM accounts WHERE id = %s", (account_id,))
+        account = cur.fetchone()
+        
+        if not account or account[0] != session['user_id']:
+            flash('Счет не найден или у вас нет прав для его удаления', 'danger')
+        else:
+            # Удаляем связанные транзакции
+            cur.execute("DELETE FROM transactions WHERE account_id = %s", (account_id,))
+            
+            # Удаляем сам счет
+            cur.execute("DELETE FROM accounts WHERE id = %s", (account_id,))
+            
+            conn.commit()
+            flash('Счет успешно удален', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка при удалении счета: {str(e)}', 'danger')
+    finally:
+        cur.close()
+        conn.close()
+    
+    return redirect(url_for('all_accounts'))
 
 
 # Изменяем функцию удаления счета (теперь меняем статус вместо удаления)

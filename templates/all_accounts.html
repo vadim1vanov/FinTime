@@ -289,11 +289,11 @@
     
     .btn-action-deposit {
         color: #000;
-        background-color: rgb(255, 221, 45);
+       background: linear-gradient(125deg, #ffdd33 0%, #e2b100);
     }
     
     .btn-action-deposit:hover {
-        background: rgb(247, 219, 80);
+        background: linear-gradient(135deg, #ffec8c 0%, #e2b100);
     }
     
     .btn-action-withdraw {
@@ -352,6 +352,11 @@
 
 .account-row {
     position: relative; /* Для позиционирования кнопки */
+}
+.account-name {
+    font-weight: 600;
+    color: var(--tinkoff-black);
+    font-size: 1.05rem;
 }
     </style>
 </head>
@@ -434,6 +439,8 @@
             <!-- Фильтры -->
             <div class="d-flex justify-content-between align-items-center">
                 <div class="filter-tabs">
+
+                    
                     <div class="filter-tab active" data-filter="all">Все</div>
                     <div class="filter-tab" data-filter="active">Активные</div>
                     <div class="filter-tab" data-filter="closed">Закрытые</div>
@@ -716,7 +723,7 @@
                         const button = event.relatedTarget;
                         const accountId = button.getAttribute('data-account-id');
                         const form = document.getElementById('deleteForm');
-                        form.action = `/accounts/delete/${accountId}`;
+                        form.action = `/accounts/all/delete/${accountId}`;
                     });
                 }
             // Обработка модальных окон
