@@ -18,6 +18,7 @@
             grid-template-columns: 280px 1fr; /* Широкое меню слева */
             gap: 30px;
             padding: 20px;
+             overflow-y: scroll; /* Всегда резервируем место под скролл-бар */
         }
         
         /* Боковое меню */
@@ -89,8 +90,10 @@
             max-width: 2400px;
             margin: 0 auto;
             padding: 0 20px;
-            width: 100%;
-            
+
+    padding-right: 15px; /* Компенсируем ширину скролл-бара */
+    box-sizing: border-box; /* Учитываем padding в общей ширине */
+    width: calc(100% - 15px); /* Компенсируем ширину скролл-бара */
             
         }
         
@@ -102,7 +105,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            /*box-shadow: 0 5px 15px rgba(0,0,0,0.05);*/
             margin-bottom: 30px;
         }
         

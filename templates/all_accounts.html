@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Все счета | FinTime</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/accounts.css">
+    <style>
+        /* Специальные стили для этой страницы */
+        .filter-tabs {
+            display: flex;
+            background: var(--tinkoff-gray);
+            border-radius: 16px;
+            padding: 6px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            margin-top: 30px;
+        }
+        
+        .filter-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--tinkoff-dark-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100px;
+        }
+        
+        .filter-tab.active {
+            background: var(--tinkoff-white);
+            color: var(--tinkoff-black);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        
+        .filter-tab:not(.active):hover {
+            background: rgba(255, 221, 45, 0.15);
+        }
+        
+        .filter-tab.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--tinkoff-yellow);
+        }
+        
+        .account-row {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 1fr 1fr 1fr 1fr;
+            align-items: center;
+            padding: 18px 25px;
+            background: var(--tinkoff-white);
+            border-radius: 14px;
+            margin-bottom: 12px;
+             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            border-left-color: #34ff2d;
+        }
+        
+        .account-row:hover {
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.27);
+            border-left-color: var(--tinkoff-yellow);
+            cursor: pointer;
+        }
+        
+        .account-row.account-closed {
+            opacity: 0.8;
+            background: rgba(243, 244, 246, 0.6);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+            border-left-color: #ff0000;
+        }
+        
+
+        .account-icon-cell {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .currency-usd { background: rgba(56, 173, 83, 0.1); color: #28a745; }
+        .currency-eur { background: rgba(42, 144, 255, 0.1); color: #057dff; }
+        .currency-rub { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+        .currency-gbp { background: rgba(111, 66, 193, 0.1); color: #6f42c1; }
+        .currency-jpy { background: rgba(232, 62, 140, 0.1); color: #e83e8c; }
+        .currency-cny { background: rgba(214, 51, 132, 0.1); color: #d63384; }
+        .currency-chf { background: rgba(32, 201, 151, 0.1); color: #20c997; }
+        .currency-default { background: rgba(255, 193, 7, 0.15); color: var(--tinkoff-yellow); }
+        
+        .account-name {
+            font-weight: 600;
+            color: var(--tinkoff-black);
+            font-size: 1.05rem;
+        }
+        
+        .account-currency {
+            background: var(--tinkoff-gray);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        .account-amount {
+            font-weight: 700;
+            font-size: 2rem;
+            font-family: "Archivo", sans-serif;
+            color: var(--tinkoff-black);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .account-amount span{
+            background: none;
+            
+            font-size: 19px;
+        }
+
+        .account-status {
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+        }
+        
+        .status-closed {
+            background: rgba(108, 117, 125, 0.15);
+            color: #6c757d;
+        }
+        
+        .account-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-action {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: var(--tinkoff-gray);
+            color: var(--tinkoff-dark-gray);
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .btn-action:hover {
+            
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-deposit {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+        }
+        
+        .btn-withdraw {
+            background: rgba(220, 53, 69, 0.15);
+            color: #dc3545;
+        }
+        
+        .btn-close {
+            background: rgba(108, 117, 125, 0.15);
+            color: #6c757d;
+        }
+        
+        .btn-restore {
+            background: rgba(32, 201, 151, 0.15);
+            color: #20c997;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 1fr 1fr 1fr 1fr;
+            padding: 12px 25px;
+            font-weight: 600;
+            color: var(--tinkoff-dark-gray);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--tinkoff-light-gray);
+            margin-bottom: 10px;
+        }
+        
+        .no-accounts {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px dashed var(--tinkoff-light-gray);
+            background: var(--tinkoff-gray);
+        }
+        
+
+
+
+        .btn-action-text {
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-right: 8px;
+        white-space: nowrap;
+    }
+    
+    .btn-deposit-text {
+        background: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+    }
+    
+    .btn-deposit-text:hover {
+        background: rgba(40, 167, 69, 0.25);
+    }
+    
+    .btn-withdraw-text {
+        background: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+    }
+    
+    .btn-withdraw-text:hover {
+        background: rgba(220, 53, 69, 0.25);
+    }
+    
+    .btn-close-text {
+        background: rgba(108, 117, 125, 0.15);
+        color: #6c757d;
+    }
+    
+    .btn-close-text:hover {
+        background: rgba(108, 117, 125, 0.25);
+    }
+    
+    .btn-restore-text {
+        background: rgba(32, 201, 151, 0.15);
+        color: #20c997;
+    }
+    
+    .btn-restore-text:hover {
+        background: rgba(32, 201, 151, 0.25);
+    }
+    
+
+
+        .btn-action {
+        padding: 8px 14px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        margin-right: 8px;
+        white-space: nowrap;
+    }
+    
+    .btn-action-deposit {
+        color: #000;
+        background-color: rgb(255, 221, 45);
+    }
+    
+    .btn-action-deposit:hover {
+        background: rgb(247, 219, 80);
+    }
+    
+    .btn-action-withdraw {
+        background: #4e4e4e;
+        color: #ffffff;
+        
+    }
+    
+    .btn-action-withdraw:hover {
+        background: #5c5c5c;
+    }
+    
+    .btn-action-close {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.2);
+    }
+    
+    .btn-action-close:hover {
+        background: rgba(108, 117, 125, 0.15);
+    }
+    
+    .btn-action-restore {
+        background: rgba(32, 201, 151, 0.1);
+        color: #20c997;
+        border: 1px solid rgba(32, 201, 151, 0.2);
+    }
+    
+    .btn-action-restore:hover {
+        background: rgba(32, 201, 151, 0.15);
+    }
+    
+
+    
+
+
+/* Стили для кнопки удаления */
+.btn-delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: #000;
+    opacity: 0.5;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+    z-index: 10;
+}
+
+.btn-delete:hover {
+    opacity: 1;
+    color: #dc3545;
+}
+
+.account-row {
+    position: relative; /* Для позиционирования кнопки */
+}
+    </style>
+</head>
+<body>
+
+    <div class="side-menu">
+        <div class="menu-title">
+            <div class="info-avatar-menu">
+                <i class="fas fa-user-circle"></i>
+            </div><span>{{ first_name }} {{ last_name }}</span>
+        </div>
+        <a href="http://localhost:5001/profile" class="menu-item">
+            <i class="fas fa-user"></i>
+            Личный кабинет
+        </a>
+        <a href="http://localhost:5002/accounts" class="menu-item">
+            <i class="fas fa-wallet"></i>
+            Управление счетами
+        </a>
+
+        <a href="#" class="menu-item">
+            <i class="fas fa-chart-pie"></i>
+            Отчёты
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-chart-line"></i>
+            Аналитика
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-cog"></i>
+            Настройки
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-question-circle"></i>
+            Помощь
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-history"></i>
+            История операций
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-credit-card"></i>
+            Платежи
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-exchange-alt"></i>
+            Переводы
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-bell"></i>
+            Уведомления
+        </a>
+    </div>
+    
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="d-flex align-items-center">
+                <div class="brand-logo me-4">
+                    <span class="fin">FinTime</span>
+                </div>
+                <div class="user-greeting">
+                    <h1 class="greeting-title">Все счета</h1>
+                    <p class="greeting-subtitle">Активные и закрытые счета</p>
+                </div>
+            </div>
+            <a href="http://localhost:5002/accounts" class="btn btn-logout">
+                <i class="fas fa-arrow-left me-2"></i>Назад к счетам
+            </a>
+        </div>
+        
+        <div class="account-body">
+            <!-- Горизонтальный навбар -->
+            <div class="account-navbar">
+                <a href="http://localhost:5002/accounts" class="account-nav-item">Главная</a>
+                <a href="http://localhost:5002/accounts/all" class="account-nav-item active">Все счета</a>
+                <a class="account-nav-item">Категории</a>
+                <a class="account-nav-item">Аналитика</a>
+            </div>
+            
+            <!-- Фильтры -->
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="filter-tabs">
+                    <div class="filter-tab active" data-filter="all">Все</div>
+                    <div class="filter-tab" data-filter="active">Активные</div>
+                    <div class="filter-tab" data-filter="closed">Закрытые</div>
+                </div>
+                <button class="btn btn-add-account" data-bs-toggle="modal" data-bs-target="#addAccountModal">
+                    <i class="fas fa-plus-circle me-2"></i>Создать счет
+                </button>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+                            <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Заголовки таблицы -->
+            <div class="table-header">
+                <div></div>
+                <div>Счет</div>
+                <div class="account-currency-cell">Валюта</div>
+                <div class="account-amount-cell">Баланс</div>
+                <div class="account-status-cell">Статус</div>
+                <div class="account-date-cell">Дата создания</div>
+                <div class="text-end">Действия</div>
+            </div>
+            
+            <div class="accounts-list">
+                {% for account in accounts %}
+                <div class="account-row account-{{ account.status }}" data-status="{{ account.status }}">
+                        <button type="button" class="btn-delete" 
+            data-bs-toggle="modal" data-bs-target="#deleteModal"
+            data-account-id="{{ account.id }}">
+        <i class="fas fa-times"></i>
+    </button>
+                    <div>
+                        <div class="account-icon-cell currency-{{ account.currency|lower }}">
+                            {% if account.currency == 'USD' %}
+                                <i class="fas fa-dollar-sign"></i>
+                            {% elif account.currency == 'EUR' %}
+                                <i class="fas fa-euro-sign"></i>
+                            {% elif account.currency == 'RUB' %}
+                                <i class="fas fa-ruble-sign"></i>
+                            {% elif account.currency == 'GBP' %}
+                                <i class="fas fa-pound-sign"></i>
+                            {% elif account.currency == 'JPY' %}
+                                <i class="fas fa-yen-sign"></i>
+                            {% elif account.currency == 'CNY' %}
+                                <i class="fas fa-yen-sign"></i>
+                            {% elif account.currency == 'CHF' %}
+                                <i class="fas fa-franc-sign"></i>
+                            {% else %}
+                                <i class="fas fa-wallet"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="account-name">{{ account.name }}</div>
+                    </div>
+                    
+                    <div class="account-currency-cell">
+                        <div class="account-currency">{{ account.currency }}</div>
+                    </div>
+                    
+                    <div class="account-amount-cell">
+                        <div class="account-amount">
+                            <span>{{ account.balance | format_currency }}</span>
+                            {% if account.currency == 'USD' %}
+                                <span class="account-icon currency-usd">$</span>
+                            {% elif account.currency == 'EUR' %}
+                                <span class="account-icon currency-eur">€</span>
+                            {% elif account.currency == 'RUB' %}
+                                <span class="account-icon currency-rub">₽</span>
+                            {% elif account.currency == 'GBP' %}
+                                <span class="account-icon currency-gbp">£</span>
+                            {% elif account.currency == 'JPY' %}
+                                <span class="account-icon currency-jpy">¥</span>
+                            {% elif account.currency == 'CNY' %}
+                                <span class="account-icon currency-cny">¥</span>
+                            {% elif account.currency == 'CHF' %}
+                                <span class="account-icon currency-chf">₣</span>
+                            {% else %}
+                                <span class="account-icon currency-default">¤</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="account-status-cell">
+                        <div class="account-status status-{{ account.status }}">
+                            {{ 'Активный' if account.status == 'active' else 'Закрытый' }}
+                        </div>
+                    </div>
+                    
+                    <div class="account-date-cell">
+                        {{ account.created_at }}
+                    </div>
+                    
+                    <div class="account-actions">
+                        {% if account.status == 'active' %}
+                            <button type="button" class="btn-action btn-action-deposit" 
+                                    data-bs-toggle="modal" data-bs-target="#depositModal" 
+                                    data-account-id="{{ account.id }}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button type="button" class="btn-action btn-action-withdraw" 
+                                    data-bs-toggle="modal" data-bs-target="#withdrawModal" 
+                                    data-account-id="{{ account.id }}">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <form method="POST" action="{{ url_for('close_account', account_id=account.id) }}" class="d-inline">
+                                <button type="submit" class="btn-action btn-action-close">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('restore_account', account_id=account.id) }}" class="d-inline">
+                                <button type="submit" class="btn-action btn-action-restore">
+                                    <i class="fas fa-unlock"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+
+                    </div>
+                </div>
+                {% else %}
+                <div class="no-accounts">
+                    <i class="fas fa-wallet fa-3x mb-4" style="color: #adb5bd;"></i>
+                    <h4>У вас нет счетов</h4>
+                    <p class="mb-4">Создайте свой первый счет, чтобы начать управление финансами</p>
+                    <button class="btn btn-add-account" data-bs-toggle="modal" data-bs-target="#addAccountModal">
+                        <i class="fas fa-plus-circle me-2"></i>Создать счет
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальные окна -->
+    <!-- Модальное окно для добавления счета -->
+    <div class="modal fade" id="addAccountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Создать новый счет</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{{ url_for('create_account') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="account_name" class="form-label">Название счета</label>
+                            <input type="hidden" name="source" value="all">
+                            <input type="text" class="form-control" id="account_name" name="account_name" required placeholder="Основной счет">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="currency" class="form-label">Валюта</label>
+                            <select class="form-control" id="currency" name="currency" required>
+                                {% for currency in currencies %}
+                                <option value="{{ currency[0] }}">{{ currency[0] }} - {{ currency[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="initial_balance" class="form-label">Начальный баланс</label>
+                            <input type="number" step="0.01" class="form-control" id="initial_balance" name="initial_balance" value="0.00" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-submit">Создать счет</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для пополнения счета -->
+    <div class="modal fade" id="depositModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Пополнение счета</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" id="depositForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="depositAmount" class="form-label">Сумма пополнения</label>
+                            <input type="number" step="0.01" class="form-control" id="depositAmount" name="amount" required placeholder="0.00">
+                        </div>
+                        <input type="hidden" id="depositAccountId" name="account_id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-submit">Пополнить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для снятия средств -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-minus-circle me-2"></i>Снятие средств</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" id="withdrawForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="withdrawAmount" class="form-label">Сумма снятия</label>
+                            <input type="number" step="0.01" class="form-control" id="withdrawAmount" name="amount" required placeholder="0.00">
+                        </div>
+                        <input type="hidden" id="withdrawAccountId" name="account_id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-submit">Снять</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p class="modal-title">Подтверждение удаления</p>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот счет? Все данные будут потеряны.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="POST" id="deleteForm" action="">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Фильтрация счетов
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            const accountRows = document.querySelectorAll('.account-row');
+            
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Обновляем активную вкладку
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Фильтруем счета
+                    accountRows.forEach(row => {
+                        if (filter === 'all') {
+                            row.style.display = 'grid';
+                        } else {
+                            row.style.display = 
+                                row.getAttribute('data-status') === filter ? 'grid' : 'none';
+                        }
+                    });
+                });
+            });
+            const deleteModal = document.getElementById('deleteModal');
+                if (deleteModal) {
+                    deleteModal.addEventListener('show.bs.modal', function(event) {
+                        const button = event.relatedTarget;
+                        const accountId = button.getAttribute('data-account-id');
+                        const form = document.getElementById('deleteForm');
+                        form.action = `/accounts/delete/${accountId}`;
+                    });
+                }
+            // Обработка модальных окон
+            const depositModal = document.getElementById('depositModal');
+            const withdrawModal = document.getElementById('withdrawModal');
+            
+            if (depositModal) {
+                depositModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const accountId = button.getAttribute('data-account-id');
+                    this.querySelector('#depositAccountId').value = accountId;
+                    this.querySelector('#depositForm').action = `/accounts/deposit/${accountId}`;
+                });
+            }
+            
+            if (withdrawModal) {
+                withdrawModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const accountId = button.getAttribute('data-account-id');
+                    this.querySelector('#withdrawAccountId').value = accountId;
+                    this.querySelector('#withdrawForm').action = `/accounts/withdraw/${accountId}`;
+                });
+            }
+            
+            // Обработка горизонтального навбара
+            const navItems = document.querySelectorAll('.account-nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Определяем активный пункт вертикального меню
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && currentPath.includes(href.split('/').pop())) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -48,20 +48,20 @@ def accounts():
     
     first_name, last_name = user_data
     
-    # Получаем счета пользователя
+    # Получаем ТОЛЬКО АКТИВНЫЕ счета пользователя
     cur.execute("""
         SELECT id, account_name, currency, balance 
         FROM accounts 
-        WHERE user_id = %s
+        WHERE user_id = %s AND (status IS NULL OR status = 'active')
         ORDER BY created_at DESC
     """, (session['user_id'],))
     accounts = cur.fetchall()
     
-    # Получаем общий баланс по всем счетам
+    # Получаем общий баланс ТОЛЬКО ПО АКТИВНЫМ СЧЕТАМ
     cur.execute("""
         SELECT currency, SUM(balance) as total 
         FROM accounts 
-        WHERE user_id = %s 
+        WHERE user_id = %s AND (status IS NULL OR status = 'active')
         GROUP BY currency
     """, (session['user_id'],))
     totals = cur.fetchall()
@@ -82,14 +82,11 @@ def accounts():
             'currency': acc[2],
             'balance': acc[3]
         })
+    
+    # Конвертация в рубли для общего баланса
     EXCHANGE_RATES = {
-    'USD': 90.5,
-    'EUR': 98.7,
-    'RUB': 1,
-    'GBP': 114.2,
-    'JPY': 0.61,
-    'CNY': 12.5,
-    'CHF': 102.3
+        'USD': 90.5, 'EUR': 98.7, 'RUB': 1,
+        'GBP': 114.2, 'JPY': 0.61, 'CNY': 12.5, 'CHF': 102.3
     }
     
     total_balance_rub = 0
@@ -116,12 +113,13 @@ def create_account():
     account_name = request.form['account_name']
     currency = request.form['currency']
     initial_balance = request.form.get('initial_balance', 0) or 0
+    source = request.form.get('source', 'main')  # Получаем источник запроса
     
     try:
         initial_balance = Decimal(initial_balance)
     except:
         flash('Некорректная сумма начального баланса', 'danger')
-        return redirect(url_for('accounts'))
+        return redirect(url_for('accounts' if source == 'main' else 'all_accounts'))
     
     conn = get_db_connection()
     cur = conn.cursor()
@@ -140,7 +138,11 @@ def create_account():
         cur.close()
         conn.close()
     
-    return redirect(url_for('accounts'))
+    # Редирект в зависимости от источника
+    if source == 'all':
+        return redirect(url_for('all_accounts'))
+    else:
+        return redirect(url_for('accounts'))
 
 # Маршрут для удаления счета
 @app.route('/accounts/delete/<int:account_id>', methods=['POST'])
@@ -171,6 +173,52 @@ def delete_account(account_id):
     
     return redirect(url_for('accounts'))
 
+
+# Изменяем функцию удаления счета (теперь меняем статус вместо удаления)
+@app.route('/accounts/close/<int:account_id>', methods=['POST'])
+def close_account(account_id):
+    if 'user_id' not in session:
+        return redirect('http://localhost:5000/login')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("UPDATE accounts SET status = 'closed' WHERE id = %s AND user_id = %s", 
+                    (account_id, session['user_id']))
+        conn.commit()
+        flash('Счет успешно закрыт', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка при закрытии счета: {str(e)}', 'danger')
+    finally:
+        cur.close()
+        conn.close()
+    
+    return redirect(url_for('all_accounts'))
+
+# Добавляем функцию восстановления счета
+@app.route('/accounts/restore/<int:account_id>', methods=['POST'])
+def restore_account(account_id):
+    if 'user_id' not in session:
+        return redirect('http://localhost:5000/login')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("UPDATE accounts SET status = 'active' WHERE id = %s AND user_id = %s", 
+                    (account_id, session['user_id']))
+        conn.commit()
+        flash('Счет успешно восстановлен', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка при восстановлении счета: {str(e)}', 'danger')
+    finally:
+        cur.close()
+        conn.close()
+    
+    return redirect(url_for('all_accounts'))
 # Маршрут для пополнения счета
 @app.route('/accounts/deposit/<int:account_id>', methods=['POST'])
 def deposit_account(account_id):
@@ -246,6 +294,68 @@ def _update_balance(account_id, operation_type):
         conn.close()
     
     return redirect(url_for('accounts'))
+
+
+# Добавляем новую функцию для отображения всех счетов
+@app.route('/accounts/all')
+def all_accounts():
+    if 'user_id' not in session:
+        return redirect('http://localhost:5000/login')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # Получаем данные пользователя
+    cur.execute("SELECT first_name, last_name FROM users WHERE id = %s", (session['user_id'],))
+    user_data = cur.fetchone()
+    
+    if not user_data:
+        cur.close()
+        conn.close()
+        return redirect('http://localhost:5000/login')
+    
+    first_name, last_name = user_data
+    
+    # Получаем ВСЕ счета пользователя (включая закрытые)
+    cur.execute("""
+        SELECT id, account_name, currency, balance, status, created_at 
+        FROM accounts 
+        WHERE user_id = %s
+        ORDER BY 
+            CASE WHEN status = 'active' THEN 1 ELSE 2 END,
+            created_at DESC
+    """, (session['user_id'],))
+    accounts = cur.fetchall()
+    
+    # Получаем список доступных валют
+    cur.execute("SELECT code, name, symbol FROM currencies ORDER BY name")
+    currencies = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    accounts_list = []
+    for acc in accounts:
+        # Форматируем дату создания
+        created_at = acc[5].strftime("%d.%m.%Y %H:%M")
+        accounts_list.append({
+            'id': acc[0],
+            'name': acc[1],
+            'currency': acc[2],
+            'balance': acc[3],
+            'status': acc[4],
+            'created_at': created_at  # Добавляем отформатированную дату
+        })
+    
+    return render_template(
+        'all_accounts.html',  # Новый шаблон
+        first_name=first_name,
+        last_name=last_name,
+        accounts=accounts_list,
+        currencies=currencies
+    )
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5002)

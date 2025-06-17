@@ -81,7 +81,7 @@
             <!-- Горизонтальный навбар -->
             <div class="account-navbar">
                 <a href="http://localhost:5002/accounts" class="account-nav-item active">Главная</a>
-                <a class="account-nav-item">Все счета</a>
+                <a href="http://localhost:5002/accounts/all" class="account-nav-item">Все счета</a>
                 <a class="account-nav-item">Категории</a>
                 <a class="account-nav-item">Аналитика</a>
             </div>
@@ -267,6 +267,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="account_name" class="form-label">Название счета</label>
+                            <input type="hidden" name="source" value="main">
                             <input type="text" class="form-control" id="account_name" name="account_name" required placeholder="Основной счет">
                         </div>
                         
