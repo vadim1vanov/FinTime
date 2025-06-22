@@ -91,9 +91,9 @@
             margin: 0 auto;
             padding: 0 20px;
 
-    padding-right: 15px; /* Компенсируем ширину скролл-бара */
-    box-sizing: border-box; /* Учитываем padding в общей ширине */
-    width: calc(100% - 15px); /* Компенсируем ширину скролл-бара */
+            padding-right: 15px; 
+            box-sizing: border-box; 
+            width: calc(100% - 15px);
             
         }
         
@@ -106,6 +106,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            margin-left: 30px;
         }
         
         .brand-logo {
@@ -190,12 +191,12 @@
         background: var(--white);
         padding: 80px 40px 120px 40px;
         border-radius: 20px;
-        /*box-shadow: 0 10px 30px rgba(0,0,0,0.05);*/
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 40px;
         margin-bottom: 0px;
         height: calc(100vh - 200px);
+        margin-left: 30px;
        }
         
         @media (max-width: 1200px) {
@@ -381,7 +382,6 @@
         
         .btn-save:hover {
             background: linear-gradient(135deg, var(--light-yellow) 0%, var(--yellow) 100%);
-            
             box-shadow: 0 7px 20px rgba(255, 193, 7, 0.3);
         }
         
@@ -430,7 +430,7 @@
             color: var(--dark-gray);
             font-size: 1rem;
         }
-        
+
         .info-value {
             flex: 1;
             color: var(--black);

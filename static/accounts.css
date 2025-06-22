@@ -138,7 +138,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            
+            margin-left: 30px;
         }
 
 
@@ -1159,4 +1159,145 @@ border: 1px solid #ffc804;
 
 .modal-header .btn-close:hover {
     opacity: 1;
+}
+
+
+/* Стили для целей */
+.goal-card {
+    background: var(--tinkoff-white);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+    border-left: 4px solid var(--tinkoff-yellow);
+}
+
+.goal-card.completed {
+    border-left-color: #28a745;
+}
+
+.goal-card.archived {
+    border-left-color: #6c757d;
+    opacity: 0.8;
+}
+
+.goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.goal-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--tinkoff-black);
+}
+
+.goal-status {
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.status-active {
+    background: rgba(255, 193, 7, 0.15);
+    color: var(--gold);
+}
+
+.status-completed {
+    background: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+.goal-progress {
+    margin-bottom: 20px;
+}
+
+.progress-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: var(--tinkoff-dark-gray);
+}
+
+.progress-bar {
+    height: 12px;
+    border-radius: 10px;
+    background: var(--tinkoff-light-gray);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--tinkoff-yellow), var(--gold));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.goal-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.goal-detail {
+    background: var(--tinkoff-gray);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    color: var(--tinkoff-dark-gray);
+    margin-bottom: 5px;
+}
+
+.detail-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--tinkoff-black);
+}
+
+.days-remaining {
+    color: #dc3545;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.no-goals {
+    text-align: center;
+    padding: 50px;
+    border: 2px dashed var(--tinkoff-light-gray);
+    border-radius: 15px;
+    margin-top: 30px;
+}
+
+.goal-icon {
+    font-size: 3rem;
+    color: var(--tinkoff-yellow);
+    margin-bottom: 20px;
+}
+
+.modal-target-input {
+    position: relative;
+}
+
+.modal-target-input span {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--tinkoff-dark-gray);
 }

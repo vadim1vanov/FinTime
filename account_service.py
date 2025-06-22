@@ -2,6 +2,7 @@
 from flask import Flask, json, render_template, session, redirect, url_for, request, flash
 import psycopg2
 from decimal import Decimal
+from datetime import date
 
 def format_currency(value):
     try:
@@ -109,7 +110,6 @@ def accounts():
 def create_account():
     if 'user_id' not in session:
         return redirect('http://localhost:5000/login')
-    
     account_name = request.form['account_name']
     currency = request.form['currency']
     initial_balance = request.form.get('initial_balance', 0) or 0
@@ -175,8 +175,6 @@ def delete_account(account_id):
     finally:
         cur.close()
         conn.close()
-    
-  
     return redirect(url_for('accounts'))
 
 
@@ -397,6 +395,206 @@ def all_accounts():
         currencies=currencies
     )
 
+
+# account_service.py
+
+# Маршрут для страницы целей
+@app.route('/accounts/goals')
+def financial_goals():
+    if 'user_id' not in session:
+        return redirect('http://localhost:5000/login')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # Получаем цели пользователя
+    cur.execute("""
+        SELECT g.id, g.name, g.target_amount, g.current_amount, g.deadline, 
+               g.status, a.account_name, g.account_id
+        FROM goals g
+        LEFT JOIN accounts a ON g.account_id = a.id
+        WHERE g.user_id = %s
+        ORDER BY g.deadline ASC
+    """, (session['user_id'],))
+    goals = cur.fetchall()
+    
+    # Получаем счета для формы
+    cur.execute("""
+        SELECT id, account_name, currency 
+        FROM accounts 
+        WHERE user_id = %s AND status = 'active'
+    """, (session['user_id'],))
+    accounts = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    goals_list = []
+    for goal in goals:
+        # Рассчитываем прогресс и оставшиеся дни
+        progress = (goal[3] / goal[2]) * 100 if goal[2] > 0 else 0
+        deadline = datetime.strptime(str(goal[4]), '%Y-%m-%d')
+        days_left = (deadline - datetime.now()).days
+        
+        goals_list.append({
+            'id': goal[0],
+            'name': goal[1],
+            'target': goal[2],
+            'current': goal[3],
+            'deadline': goal[4].strftime("%d.%m.%Y"),
+            'status': goal[5],
+            'account_name': goal[6],
+            'account_id': goal[7],
+            'progress': min(100, round(progress, 1)),
+            'days_left': max(0, days_left)
+        })
+    
+    current_date = date.today().strftime('%Y-%m-%d')
+    
+    return render_template(
+        'goals.html',
+        goals=goals_list,
+        accounts=accounts,
+        current_date=current_date  # Передаем в шаблон
+    )
+
+# Создание новой цели
+@app.route('/goals/create', methods=['POST'])
+def create_goal():
+    if 'user_id' not in session:
+        return redirect('http://localhost:5000/login')
+    
+    name = request.form['name']
+    target = request.form['target']
+    deadline = request.form['deadline']
+    account_id = request.form.get('account_id', None)
+    
+    try:
+        target = Decimal(target)
+        if target <= 0:
+            raise ValueError("Цель должна быть больше 0")
+            
+        deadline = datetime.strptime(deadline, '%Y-%m-%d').date()
+        if deadline < date.today():
+            flash('Дата окончания не может быть в прошлом', 'danger')
+            return redirect(url_for('financial_goals'))
+            
+    except Exception as e:
+        flash(f'Ошибка в данных: {str(e)}', 'danger')
+        return redirect(url_for('financial_goals'))
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("""
+            INSERT INTO goals (user_id, name, target_amount, deadline, account_id)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (session['user_id'], name, target, deadline, account_id))
+        
+        conn.commit()
+        flash('Цель успешно создана', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка при создании цели: {str(e)}', 'danger')
+    finally:
+        cur.close()
+        conn.close()
+    
+    return redirect(url_for('financial_goals'))
+
+# Удаление цели
+@app.route('/goals/delete/<int:goal_id>', methods=['POST'])
+def delete_goal(goal_id):
+    if 'user_id' not in session:
+        return redirect('http://localhost:5000/login')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("""
+            DELETE FROM goals 
+            WHERE id = %s AND user_id = %s
+        """, (goal_id, session['user_id']))
+        
+        conn.commit()
+        flash('Цель успешно удалена', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка при удалении цели: {str(e)}', 'danger')
+    finally:
+        cur.close()
+        conn.close()
+    
+    return redirect(url_for('financial_goals'))
+
+# Добавление средств к цели
+@app.route('/goals/add_funds/<int:goal_id>', methods=['POST'])
+def add_funds_to_goal(goal_id):
+    if 'user_id' not in session:
+        return redirect('http://localhost:5000/login')
+    
+    amount = request.form['amount']
+    
+    try:
+        amount = Decimal(amount)
+        if amount <= 0:
+            raise ValueError("Сумма должна быть больше 0")
+    except:
+        flash('Некорректная сумма', 'danger')
+        return redirect(url_for('financial_goals'))
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Проверяем существование цели
+        cur.execute("""
+            SELECT target_amount, current_amount, account_id
+            FROM goals
+            WHERE id = %s AND user_id = %s
+        """, (goal_id, session['user_id']))
+        goal = cur.fetchone()
+        
+        if not goal:
+            flash('Цель не найдена', 'danger')
+            return redirect(url_for('financial_goals'))
+        
+        target, current, account_id = goal
+        new_amount = current + amount
+        
+        # Обновляем цель
+        cur.execute("""
+            UPDATE goals 
+            SET current_amount = %s 
+            WHERE id = %s
+        """, (new_amount, goal_id))
+        
+        # Если цель привязана к счету, обновляем баланс счета
+        if account_id:
+            cur.execute("""
+                UPDATE accounts 
+                SET balance = balance - %s 
+                WHERE id = %s
+            """, (amount, account_id))
+            
+            # Записываем транзакцию
+            cur.execute("""
+                INSERT INTO transactions (account_id, amount, transaction_type, description)
+                VALUES (%s, %s, 'goal', %s)
+            """, (account_id, amount, f"Пополнение цели: {request.form['name']}"))
+        
+        conn.commit()
+        flash('Средства успешно добавлены к цели', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка: {str(e)}', 'danger')
+    finally:
+        cur.close()
+        conn.close()
+    
+    return redirect(url_for('financial_goals'))
 
 
 if __name__ == '__main__':

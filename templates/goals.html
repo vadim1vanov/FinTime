@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансовые цели | FinTime</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/accounts.css">
+    <style>
+        /* Стили для страницы целей в стиле all_accounts */
+        .goal-row {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 1fr 1fr 1fr 1fr;
+            align-items: center;
+            padding: 18px 25px;
+            background: var(--tinkoff-white);
+            border-radius: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .goal-row:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .goal-row.completed {
+            border-left-color: #28a745;
+        }
+        
+        .goal-row.archived {
+            border-left-color: #6c757d;
+            opacity: 0.8;
+        }
+        
+        .goal-icon-cell {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: rgba(255, 193, 7, 0.15);
+            color: var(--tinkoff-yellow);
+        }
+        
+        .goal-name {
+            font-weight: 600;
+            color: var(--tinkoff-black);
+            font-size: 1.05rem;
+        }
+        
+        .goal-amount {
+            font-weight: 700;
+            font-family: "Archivo", sans-serif;
+            color: var(--tinkoff-black);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .goal-progress {
+            width: 100%;
+            height: 8px;
+            background: var(--tinkoff-light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .goal-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--tinkoff-yellow), var(--gold));
+            border-radius: 4px;
+        }
+        
+        .goal-status {
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+        }
+        
+        .status-completed {
+            background: rgba(108, 117, 125, 0.15);
+            color: #6c757d;
+        }
+        
+        .days-remaining {
+            font-weight: 700;
+            color: var(--tinkoff-black);
+        }
+        
+        .days-warning {
+            color: #dc3545;
+        }
+        
+        .goal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-goal-add {
+            background: linear-gradient(135deg, var(--tinkoff-yellow) 0%, #e7b603);
+            color: var(--tinkoff-black);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-goal-add:hover {
+            background: linear-gradient(135deg, #ffec8c 0%, #e7b603);
+        }
+        
+        .btn-goal-delete {
+            background: #4e4e4e;
+            color: #ffffff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-goal-delete:hover {
+            background: #5c5c5c;
+        }
+        
+        .table-header.goals-header {
+            grid-template-columns: 50px 2fr 1fr 1fr 1fr 1fr 1fr;
+        }
+        
+        .no-goals {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px dashed var(--tinkoff-light-gray);
+            background: var(--tinkoff-gray);
+        }
+        
+        /* Адаптивные стили */
+        @media (max-width: 992px) {
+            .goal-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .goal-actions {
+                justify-content: center;
+                margin-top: 15px;
+            }
+            
+            .table-header {
+                display: none;
+            }
+        }
+        
+        /* Центрирование содержимого */
+        .table-header > div:not(:nth-child(2)),
+        .goal-row > div:not(:nth-child(2)) {
+            justify-content: center;
+            display: flex;
+        }
+        
+        .table-header > div:nth-child(2),
+        .goal-row > div:nth-child(2) {
+            justify-content: flex-start;
+        }
+        
+        .goal-actions {
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="side-menu">
+        <div class="menu-title">
+            <div class="info-avatar-menu">
+                <i class="fas fa-user-circle"></i>
+            </div><span>{{ first_name }} {{ last_name }}</span>
+        </div>
+        <a href="http://localhost:5001/profile" class="menu-item">
+            <i class="fas fa-user"></i>
+            Личный кабинет
+        </a>
+        <a href="http://localhost:5002/accounts" class="menu-item">
+            <i class="fas fa-wallet"></i>
+            Управление счетами
+        </a>
+        <a href="http://localhost:5002/accounts/goals" class="menu-item active">
+            <i class="fas fa-bullseye"></i>
+            Финансовые цели
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-chart-pie"></i>
+            Отчёты
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-chart-line"></i>
+            Аналитика
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-cog"></i>
+            Настройки
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-question-circle"></i>
+            Помощь
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-history"></i>
+            История операций
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-credit-card"></i>
+            Платежи
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-exchange-alt"></i>
+            Переводы
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-bell"></i>
+            Уведомления
+        </a>
+    </div>
+    
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="d-flex align-items-center">
+                <div class="brand-logo me-4">
+                    <span class="fin">FinTime</span>
+                </div>
+                <div class="user-greeting">
+                    <h1 class="greeting-title">Финансовые цели</h1>
+                    <p class="greeting-subtitle">Планируйте и отслеживайте ваши накопления</p>
+                </div>
+            </div>
+            <a href="http://localhost:5002/accounts" class="btn btn-logout">
+                <i class="fas fa-arrow-left me-2"></i>Назад к счетам
+            </a>
+        </div>
+        
+        <div class="account-body">
+            <!-- Навбар -->
+            <div class="account-navbar">
+                <a href="http://localhost:5002/accounts" class="account-nav-item">Главная</a>
+                <a href="http://localhost:5002/accounts/all" class="account-nav-item">Все счета</a>
+                <a href="http://localhost:5002/accounts/goals" class="account-nav-item active">Финансовые цели</a>
+                <a class="account-nav-item">Аналитика</a>
+            </div>
+            
+            <!-- Заголовок и кнопка создания -->
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+                <h2 class="section-title">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Ваши финансовые цели</span>
+                </h2>
+                <button class="btn btn-add-account" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                    <i class="fas fa-plus-circle me-2"></i>Новая цель
+                </button>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} mb-4">
+                            <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Заголовки таблицы -->
+            <div class="table-header goals-header">
+                <div class="text-center"></div>
+                <div class="text-start">Цель</div>
+                <div class="text-center">Целевая сумма</div>
+                <div class="text-center">Собрано</div>
+                <div class="text-center">Прогресс</div>
+                <div class="text-center">Осталось дней</div>
+                <div class="text-center">Действия</div>
+            </div>
+            
+            <!-- Список целей -->
+            <div class="goals-list">
+                {% for goal in goals %}
+                <div class="goal-row {% if goal.status == 'completed' %}completed{% endif %}">
+                    <!-- Иконка цели -->
+                    <div class="goal-icon-cell text-center">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    
+                    <!-- Название цели -->
+                    <div class="text-start">
+                        <div class="goal-name">{{ goal.name }}</div>
+                        <div class="goal-status status-{{ goal.status }} mt-2">
+                            {% if goal.status == 'active' %}Активна
+                            {% elif goal.status == 'completed' %}Завершена
+                            {% else %}Архив{% endif %}
+                        </div>
+                        {% if goal.account_name %}
+                        <div class="mt-2">
+                            <small class="text-muted">Счет: {{ goal.account_name }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Целевая сумма -->
+                    <div class="text-center">
+                        <div class="goal-amount">
+                            {{ goal.target|format_currency }}
+                        </div>
+                    </div>
+                    
+                    <!-- Собрано средств -->
+                    <div class="text-center">
+                        <div class="goal-amount">
+                            {{ goal.current|format_currency }}
+                        </div>
+                    </div>
+                    
+                    <!-- Прогресс -->
+                    <div>
+                        <div class="progress-text text-center mb-1">
+                            {{ goal.progress }}%
+                        </div>
+                        <div class="goal-progress">
+                            <div class="goal-progress-bar" style="width: {{ goal.progress }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Осталось дней -->
+                    <div class="text-center">
+                        <div class="days-remaining {% if goal.days_left < 10 %}days-warning{% endif %}">
+                            {{ goal.days_left }}
+                        </div>
+                        <div class="text-muted small">
+                            до {{ goal.deadline }}
+                        </div>
+                    </div>
+                    
+                    <!-- Действия -->
+                    <div class="text-center">
+                        <div class="goal-actions">
+                            {% if goal.status == 'active' %}
+                            <button type="button" class="btn btn-goal-add" 
+                                    data-bs-toggle="modal" data-bs-target="#addFundsModal"
+                                    data-goal-id="{{ goal.id }}"
+                                    data-goal-name="{{ goal.name }}">
+                                <i class="fas fa-plus me-1"></i>Добавить
+                            </button>
+                            {% endif %}
+                            
+                            <form method="POST" action="{{ url_for('delete_goal', goal_id=goal.id) }}">
+                                <button type="submit" class="btn btn-goal-delete">
+                                    <i class="fas fa-trash-alt me-1"></i>Удалить
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="no-goals">
+                    <i class="fas fa-bullseye fa-3x mb-4" style="color: #adb5bd;"></i>
+                    <h4>У вас пока нет финансовых целей</h4>
+                    <p class="mb-4">Создайте свою первую цель, чтобы начать копить</p>
+                    <button class="btn btn-add-account" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                        <i class="fas fa-plus-circle me-2"></i>Создать цель
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно добавления цели -->
+    <div class="modal fade" id="addGoalModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-bullseye me-2"></i>Новая финансовая цель</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{{ url_for('create_goal') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="goal_name" class="form-label">Название цели</label>
+                            <input type="text" class="form-control" id="goal_name" name="name" required 
+                                   placeholder="Новый автомобиль, отпуск и т.д.">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="target_amount" class="form-label">Целевая сумма</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" class="form-control" id="target_amount" 
+                                       name="target" required placeholder="100000">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="deadline" class="form-label">Срок достижения</label>
+                            <input type="date" class="form-control" id="deadline" name="deadline" required 
+                                   min="{{ current_date }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="account_select" class="form-label">Привязать к счету (опционально)</label>
+                            <select class="form-control" id="account_select" name="account_id">
+                                <option value="">-- Без привязки к счету --</option>
+                                {% for account in accounts %}
+                                <option value="{{ account.id }}">{{ account.account_name }} ({{ account.currency }})</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">При привязке средства будут списываться с выбранного счета</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-submit">Создать цель</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно добавления средств -->
+    <div class="modal fade" id="addFundsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Добавить средства к цели</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" id="addFundsForm">
+                    <div class="modal-body">
+                        <h5 id="goalName" class="mb-4"></h5>
+                        
+                        <div class="mb-3">
+                            <label for="funds_amount" class="form-label">Сумма пополнения</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" class="form-control" id="funds_amount" 
+                                       name="amount" required placeholder="0.00">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" id="goalId" name="goal_id">
+                        <input type="hidden" id="goalNameHidden" name="name">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-submit">Добавить средства</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработка модального окна добавления средств
+            const addFundsModal = document.getElementById('addFundsModal');
+            if (addFundsModal) {
+                addFundsModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const goalId = button.getAttribute('data-goal-id');
+                    const goalName = button.getAttribute('data-goal-name');
+                    
+                    document.getElementById('goalName').textContent = goalName;
+                    document.getElementById('goalId').value = goalId;
+                    document.getElementById('goalNameHidden').value = goalName;
+                    document.getElementById('addFundsForm').action = `/goals/add_funds/${goalId}`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

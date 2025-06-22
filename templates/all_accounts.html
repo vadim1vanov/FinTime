@@ -358,6 +358,51 @@
     color: var(--tinkoff-black);
     font-size: 1.05rem;
 }
+
+    /* Центрирование содержимого ячеек */
+    .table-header > div:not(:nth-child(2)),
+    .account-row > div:not(:nth-child(2)) {
+
+  
+        justify-content: center;
+        display: flex;
+    }
+
+    /* Выравнивание названия счета по левому краю */
+    .table-header > div:nth-child(2),
+    .account-row > div:nth-child(2) {
+         justify-content: center;
+        display: flex;
+    }
+
+    /* Центрирование кнопок действий */
+    .account-actions {
+        justify-content: center;
+    }
+
+    /* Центрирование иконок валют */
+    .account-icon-cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    /* Центрирование статуса */
+    .account-status-cell {
+        display: flex;
+        justify-content: center;
+    }
+    
+    /* Центрирование даты */
+    .account-date-cell {
+        text-align: center;
+    }
+    
+    /* Центрирование баланса */
+    .account-amount {
+        justify-content: center;
+    }
+
     </style>
 </head>
 <body>
@@ -432,7 +477,7 @@
             <div class="account-navbar">
                 <a href="http://localhost:5002/accounts" class="account-nav-item">Главная</a>
                 <a href="http://localhost:5002/accounts/all" class="account-nav-item active">Все счета</a>
-                <a class="account-nav-item">Категории</a>
+                <a href="http://localhost:5002/accounts/goals" class="account-nav-item">Цели</a>
                 <a class="account-nav-item">Аналитика</a>
             </div>
             
@@ -461,115 +506,124 @@
                 {% endif %}
             {% endwith %}
             
-            <!-- Заголовки таблицы -->
             <div class="table-header">
-                <div></div>
-                <div>Счет</div>
-                <div class="account-currency-cell">Валюта</div>
-                <div class="account-amount-cell">Баланс</div>
-                <div class="account-status-cell">Статус</div>
-                <div class="account-date-cell">Дата создания</div>
-                <div class="text-end">Действия</div>
+                <div class="text-center"></div>
+                <div class="text-start">Счет</div>  <!-- Название счета по левому краю -->
+                <div class="text-center">Валюта</div>
+                <div class="text-center">Баланс</div>
+                <div class="text-center">Статус</div>
+                <div class="text-center">Дата создания</div>
+                <div class="text-center">Действия</div>
             </div>
             
             <div class="accounts-list">
                 {% for account in accounts %}
-                <div class="account-row account-{{ account.status }}" data-status="{{ account.status }}">
-                        <button type="button" class="btn-delete" 
+<div class="account-row account-{{ account.status }}" data-status="{{ account.status }}">
+    <!-- Кнопка удаления в правом верхнем углу -->
+    <button type="button" class="btn-delete" 
             data-bs-toggle="modal" data-bs-target="#deleteModal"
             data-account-id="{{ account.id }}">
         <i class="fas fa-times"></i>
     </button>
-                    <div>
-                        <div class="account-icon-cell currency-{{ account.currency|lower }}">
-                            {% if account.currency == 'USD' %}
-                                <i class="fas fa-dollar-sign"></i>
-                            {% elif account.currency == 'EUR' %}
-                                <i class="fas fa-euro-sign"></i>
-                            {% elif account.currency == 'RUB' %}
-                                <i class="fas fa-ruble-sign"></i>
-                            {% elif account.currency == 'GBP' %}
-                                <i class="fas fa-pound-sign"></i>
-                            {% elif account.currency == 'JPY' %}
-                                <i class="fas fa-yen-sign"></i>
-                            {% elif account.currency == 'CNY' %}
-                                <i class="fas fa-yen-sign"></i>
-                            {% elif account.currency == 'CHF' %}
-                                <i class="fas fa-franc-sign"></i>
-                            {% else %}
-                                <i class="fas fa-wallet"></i>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div class="account-name">{{ account.name }}</div>
-                    </div>
-                    
-                    <div class="account-currency-cell">
-                        <div class="account-currency">{{ account.currency }}</div>
-                    </div>
-                    
-                    <div class="account-amount-cell">
-                        <div class="account-amount">
-                            <span>{{ account.balance | format_currency }}</span>
-                            {% if account.currency == 'USD' %}
-                                <span class="account-icon currency-usd">$</span>
-                            {% elif account.currency == 'EUR' %}
-                                <span class="account-icon currency-eur">€</span>
-                            {% elif account.currency == 'RUB' %}
-                                <span class="account-icon currency-rub">₽</span>
-                            {% elif account.currency == 'GBP' %}
-                                <span class="account-icon currency-gbp">£</span>
-                            {% elif account.currency == 'JPY' %}
-                                <span class="account-icon currency-jpy">¥</span>
-                            {% elif account.currency == 'CNY' %}
-                                <span class="account-icon currency-cny">¥</span>
-                            {% elif account.currency == 'CHF' %}
-                                <span class="account-icon currency-chf">₣</span>
-                            {% else %}
-                                <span class="account-icon currency-default">¤</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="account-status-cell">
-                        <div class="account-status status-{{ account.status }}">
-                            {{ 'Активный' if account.status == 'active' else 'Закрытый' }}
-                        </div>
-                    </div>
-                    
-                    <div class="account-date-cell">
-                        {{ account.created_at }}
-                    </div>
-                    
-                    <div class="account-actions">
-                        {% if account.status == 'active' %}
-                            <button type="button" class="btn-action btn-action-deposit" 
-                                    data-bs-toggle="modal" data-bs-target="#depositModal" 
-                                    data-account-id="{{ account.id }}">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                            <button type="button" class="btn-action btn-action-withdraw" 
-                                    data-bs-toggle="modal" data-bs-target="#withdrawModal" 
-                                    data-account-id="{{ account.id }}">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <form method="POST" action="{{ url_for('close_account', account_id=account.id) }}" class="d-inline">
-                                <button type="submit" class="btn-action btn-action-close">
-                                    <i class="fas fa-lock"></i>
-                                </button>
-                            </form>
-                        {% else %}
-                            <form method="POST" action="{{ url_for('restore_account', account_id=account.id) }}" class="d-inline">
-                                <button type="submit" class="btn-action btn-action-restore">
-                                    <i class="fas fa-unlock"></i>
-                                </button>
-                            </form>
-                        {% endif %}
-
-                    </div>
-                </div>
+    
+    <!-- Иконка валюты (центрирована) -->
+    <div class="account-icon-cell text-center">
+        <div class="account-icon-container currency-{{ account.currency|lower }}">
+            {% if account.currency == 'USD' %}
+                <i class="fas fa-dollar-sign"></i>
+            {% elif account.currency == 'EUR' %}
+                <i class="fas fa-euro-sign"></i>
+            {% elif account.currency == 'RUB' %}
+                <i class="fas fa-ruble-sign"></i>
+            {% elif account.currency == 'GBP' %}
+                <i class="fas fa-pound-sign"></i>
+            {% elif account.currency == 'JPY' %}
+                <i class="fas fa-yen-sign"></i>
+            {% elif account.currency == 'CNY' %}
+                <i class="fas fa-yen-sign"></i>
+            {% elif account.currency == 'CHF' %}
+                <i class="fas fa-franc-sign"></i>
+            {% else %}
+                <i class="fas fa-wallet"></i>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Название счета (выравнивание по левому краю) -->
+    <div class="text-start">
+        <div class="account-name">{{ account.name }}</div>
+    </div>
+    
+    <!-- Валюта (центрирована) -->
+    <div class="account-currency-cell text-center">
+        <div class="account-currency">{{ account.currency }}</div>
+    </div>
+    
+    <!-- Баланс (центрирован) -->
+    <div class="account-amount-cell text-center">
+        <div class="account-amount">
+            <span>{{ account.balance | format_currency }}</span>
+            {% if account.currency == 'USD' %}
+                <span class="account-icon currency-usd">$</span>
+            {% elif account.currency == 'EUR' %}
+                <span class="account-icon currency-eur">€</span>
+            {% elif account.currency == 'RUB' %}
+                <span class="account-icon currency-rub">₽</span>
+            {% elif account.currency == 'GBP' %}
+                <span class="account-icon currency-gbp">£</span>
+            {% elif account.currency == 'JPY' %}
+                <span class="account-icon currency-jpy">¥</span>
+            {% elif account.currency == 'CNY' %}
+                <span class="account-icon currency-cny">¥</span>
+            {% elif account.currency == 'CHF' %}
+                <span class="account-icon currency-chf">₣</span>
+            {% else %}
+                <span class="account-icon currency-default">¤</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Статус (центрирован) -->
+    <div class="account-status-cell text-center">
+        <div class="account-status status-{{ account.status }}">
+            {{ 'Активный' if account.status == 'active' else 'Закрытый' }}
+        </div>
+    </div>
+    
+    <!-- Дата создания (центрирована) -->
+    <div class="account-date-cell text-center">
+        {{ account.created_at }}
+    </div>
+    
+    <!-- Действия (центрированы) -->
+    <div class="text-center">
+        <div class="account-actions">
+            {% if account.status == 'active' %}
+                <button type="button" class="btn-action btn-action-deposit" 
+                        data-bs-toggle="modal" data-bs-target="#depositModal" 
+                        data-account-id="{{ account.id }}">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button type="button" class="btn-action btn-action-withdraw" 
+                        data-bs-toggle="modal" data-bs-target="#withdrawModal" 
+                        data-account-id="{{ account.id }}">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <form method="POST" action="{{ url_for('close_account', account_id=account.id) }}" class="d-inline">
+                    <button type="submit" class="btn-action btn-action-close">
+                        <i class="fas fa-lock"></i>
+                    </button>
+                </form>
+            {% else %}
+                <form method="POST" action="{{ url_for('restore_account', account_id=account.id) }}" class="d-inline">
+                    <button type="submit" class="btn-action btn-action-restore">
+                        <i class="fas fa-unlock me-1"></i>
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
                 {% else %}
                 <div class="no-accounts">
                     <i class="fas fa-wallet fa-3x mb-4" style="color: #adb5bd;"></i>
