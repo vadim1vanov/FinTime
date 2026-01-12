@@ -16,14 +16,21 @@ import java.time.Instant;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AccountDto {
+    @NonNull
     Long id;
     @JsonProperty("user_id")
+    @NonNull
     Long userId;
+    @NonNull
     @JsonProperty("account_name")
     String accountName;
+    @NonNull
     String currency;
+    @NonNull
     BigDecimal balance;
+    @NonNull
     String status;
+    @NonNull
     @JsonProperty("created_at")
     Instant createdAt;
 }

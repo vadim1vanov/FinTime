@@ -2,6 +2,7 @@ package com.fintime.fintime.DTO;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fintime.fintime.Enums.FinanceGoalStatus;
 import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -28,12 +29,12 @@ public class FinanceGoalDto {
     @JsonProperty("current_amount")
     BigDecimal currentAmount;
     @NonNull
+    @JsonProperty("percent_goal")
+    Double percentGoal;
+    @NonNull
     Instant deadline;
     @NonNull
-    String status;
-    @NonNull
-    @JsonProperty("account_id")
-    Long accountId;
+    FinanceGoalStatus status;
     @NonNull
     @JsonProperty("created_at")
     Instant createdAt;

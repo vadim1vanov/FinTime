@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Транзакции</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .income {
+            color: green;
+            font-weight: bold;
+        }
+        .expense {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Список транзакций</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>ID аккаунта</th>
+        <th>ID User</th>
+        <th>Тип</th>
+        <th>Сумма</th>
+        <th>Описание</th>
+        <th>Дата</th>
+        <th>Target ID</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="tx : ${transactions}">
+        <td th:text="${tx.id}"></td>
+
+        <td th:text="${tx.accountId}"></td>
+        <td th:text="${tx.userId}"></td>
+        <td th:text="${tx.transactionalType}"></td>
+
+        <td th:text="${tx.amount}"
+            th:classappend="${tx.transactionalType == 'income'} ? 'income' : 'expense'">
+        </td>
+
+        <td th:text="${tx.description ?: '-'}"></td>
+
+        <td th:text="${#temporals.format(tx.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+        <td th:text="${tx.accountTargetId}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<p th:if="${#lists.isEmpty(transactions)}">
+    Транзакций пока нет.
+</p>
+
+</body>
+</html>

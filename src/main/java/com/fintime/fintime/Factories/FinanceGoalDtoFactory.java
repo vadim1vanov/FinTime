@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FinanceGoalDtoFactory {
 
-    public FinanceGoalDto makeFinanceGoalDto(FinanceGoalModel financeGoalModel){
+    public static FinanceGoalDto makeFinanceGoalDto(FinanceGoalModel financeGoalModel){
         return FinanceGoalDto.builder()
                 .id(financeGoalModel.getId())
                 .userId(financeGoalModel.getUserId())
@@ -16,8 +16,8 @@ public class FinanceGoalDtoFactory {
                 .targetAmount(financeGoalModel.getTargetAmount())
                 .currentAmount(financeGoalModel.getCurrentAmount())
                 .deadline(financeGoalModel.getDeadline())
+                .percentGoal(financeGoalModel.getPercentGoal())
                 .status(financeGoalModel.getStatus())
-                .accountId(financeGoalModel.getAccountId())
                 .createdAt(financeGoalModel.getCreatedAt())
                 .build();
     }

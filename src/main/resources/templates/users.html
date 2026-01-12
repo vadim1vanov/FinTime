@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Users List</title>
+    <meta charset="UTF-8" />
+</head>
+<body>
+<h1>All Users</h1>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Username (Email)</th>
+        <th>Count Accounts</th>
+        <th>Password</th>
+    </tr>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}">ID</td>
+        <td th:text="${user.firstName}">First Name</td>
+        <td th:text="${user.lastName}">Last Name</td>
+        <td th:text="${user.username}">Username</td>
+        <td th:text="${user.countAccounts}">Count accounts</td>
+        <td th:text="${user.password}">Password</td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Account</title>
+    <meta charset="UTF-8" />
+</head>
+<body>
+<h1>Create New Account</h1>
+<form action="/accounts/create" method="post">
+    <label for="accountName">Account Name:</label>
+    <input id="accountName" type="text" name="accountName" required><br><br>
+
+    <label for="currency">Currency:</label>
+    <input id="currency" type="text" name="currency" required><br><br>
+
+    <label for="balance">Initial Balance:</label>
+    <input id="balance" type="number" name="balance" step="0.01" min="0" value="0.00" required><br><br>
+
+    <button type="submit">Create Account</button>
+</form>
+<form action="/accounts/view" method="get" style="margin-top: 10px;">
+    <button type="submit">Back to Accounts</button>
+</form>
+</body>
+</html>

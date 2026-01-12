@@ -2,75 +2,91 @@ package com.fintime.fintime.Controllers;
 
 import com.fintime.fintime.DTO.*;
 import com.fintime.fintime.Repository.*;
-import com.fintime.fintime.Services.Impl.AccountServiceImpl;
+import com.fintime.fintime.Services.AccountService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 
 
-@Transactional
 @RestController
+@RequestMapping("api/accounts")
+@RequiredArgsConstructor
 public class AccountController {
-    final AccountServiceImpl accountService;
-    final AccountRepository accountRepository;
+    final AccountService accountService;
 
-    AccountController(AccountServiceImpl accountService, AccountRepository accountRepository){
-        this.accountRepository = accountRepository;
-        this.accountService = accountService;
+    //СОЗДАНИЕ СЧЁТА
+    @PostMapping
+    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto){
+        AccountDto account = accountService.createAccount(accountDto);
+        return ResponseEntity
+                .created(URI.create("api/accounts" + account.getId()))
+                .body(account);
     }
 
-    public static final String CREATE_ACCOUNT = "/accounts/create";
-    public static final String EDIT_ACCOUNT = "/accounts/edit/{account_id}";
-    public static final String DELETE_ACCOUNT = "/accounts/delete/{account_id}";
-    public static final String CLOSE_ACCOUNT = "/accounts/close/{account_id}";
-    public static final String RESTORE_ACCOUNT = "/accounts/restore/{account_id}";
-    public static final String GET_ALL_ACCOUNTS = "/accounts/all";
-    public static final String GET_ACTIVE_ACCOUNTS = "/accounts/active";
-    public static final String GET_CLOSED_ACCOUNTS = "/accounts/closed";
-
-    @PostMapping(CREATE_ACCOUNT)
-    public AccountDto createAccount(@RequestParam String accountName, @RequestParam String currency,
-                                    @RequestParam BigDecimal balance){
-        return accountService.createAccount(accountName, currency, balance);
+    //РЕДАКТИРОВАНИЕ СЧЁТА
+    @PatchMapping("/{accountId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editAccount(@PathVariable Long accountId, @RequestBody AccountDto accountDto){
+        accountService.editAccount(accountId, accountDto);
     }
 
-    @PatchMapping(EDIT_ACCOUNT)
-    public AccountDto editAccount(@PathVariable("account_id") Long accountId,
-                                  @RequestBody AccountDto updatedAccountDto){
-        return accountService.editAccount(accountId, updatedAccountDto);
-    }
-
-    @GetMapping(GET_ALL_ACCOUNTS)
+    //ПОЛУЧЕНИЕ ВСЕХ СЧЕТОВ
+    @GetMapping
     public List<AccountDto> getAllAccounts(){
         return accountService.getAllAccounts();
     }
 
-    @GetMapping(GET_ACTIVE_ACCOUNTS)
+    //ПОЛУЧЕНИЕ СЧЁТА
+    @GetMapping("/{accountId}")
+    public AccountDto getAccount(@PathVariable Long accountId){
+        return accountService.getAccount(accountId);
+    }
+
+    //ПОЛУЧЕНИЕ АКТИВНЫХ СЧЕТОВ
+    @GetMapping("/active")
     public List<AccountDto> getActiveAccounts(){
         return accountService.getActiveAccounts();
     }
 
-    @GetMapping(GET_CLOSED_ACCOUNTS)
+    //ПОЛУЧЕНИЕ ЗАКРЫТЫХ СЧЕТОВ
+    @GetMapping("closed")
     public List<AccountDto> getClosedAccounts(){
         return accountService.getClosedAccounts();
     }
 
-    @DeleteMapping(DELETE_ACCOUNT)
-    public void deleteAccount(@PathVariable("account_id") Long accountId){
+    //ЗАКРЫТЬ СЧЁТ
+    @PatchMapping("/{accountId}/close")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void closeAccount(@PathVariable Long accountId){
+        accountService.closeAccount(accountId);
+    }
+
+    //ВОССТАНОВИТЬ СЧЁТ
+    @PatchMapping("/{accountId}/restore")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void restoreAccount(@PathVariable Long accountId){
+        accountService.restoreAccount(accountId);
+    }
+
+    //УДАЛИТЬ СЧЁТ
+    @DeleteMapping("/{accountId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAccount(@PathVariable Long accountId){
         accountService.deleteAccount(accountId);
     }
 
-    @PatchMapping(CLOSE_ACCOUNT)
-    public AccountDto closeAccount(@PathVariable("account_id") Long accountId){
-        return accountService.closeAccount(accountId);
-    }
-
-
-    @PostMapping(RESTORE_ACCOUNT)
-    public AccountDto restoreAccount(@PathVariable("account_id") Long accountId){
-        return accountService.restoreAccount(accountId);
+    //УДАЛИТЬ ВСЕ СЧЕТА
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAllAccounts(){
+        accountService.deleteAllAccounts();
     }
 
 

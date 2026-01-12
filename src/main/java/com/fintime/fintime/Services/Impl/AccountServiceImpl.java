@@ -1,13 +1,17 @@
 package com.fintime.fintime.Services.Impl;
 
-
 import com.fintime.fintime.DTO.AccountDto;
 import com.fintime.fintime.Exceptions.BadRequestException;
 import com.fintime.fintime.Exceptions.NotFoundException;
 import com.fintime.fintime.Factories.AccountDtoFactory;
 import com.fintime.fintime.Models.AccountModel;
 import com.fintime.fintime.Repository.AccountRepository;
+import com.fintime.fintime.Repository.UserRepository;
 import com.fintime.fintime.Services.AccountService;
+import com.fintime.fintime.Services.UserService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,107 +22,74 @@ import java.util.stream.Collectors;
 
 
 @Service
-
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final UserService userService;
 
-
-    AccountServiceImpl(AccountRepository accountRepository, AccountDtoFactory accountDtoFactory){
-        this.accountRepository = accountRepository;
-    }
 
     @Override
-    public AccountDto createAccount(String accountName, String currency, BigDecimal balance){
-        if(accountName.trim().isEmpty()){
-            throw new BadRequestException("Введите название счёта!");
+    public AccountDto createAccount(AccountDto accountDto){
+        Long currentUserId = userService.getCurrentUserId();
+        if(accountRepository.findByAccountName(accountDto.getAccountName()).isPresent()) {
+            throw new BadRequestException("Счёт с данным названием уже создан!");
         }
-        if(currency.trim().isEmpty()){
-            throw new BadRequestException("Введите валюту счёта!");
-        }
-        if(balance == null){
-            throw new BadRequestException("Введите баланс счёта!");
-        }
-        accountRepository
-                .findByAccountName(accountName)
-                .ifPresent(account ->{
-                    throw new BadRequestException("Счёт с данным названием уже создан!");
-                });
         AccountModel account = accountRepository.saveAndFlush(
                 AccountModel.builder()
-                        .accountName(accountName)
-                        .currency(currency)
-                        .balance(balance)
+                        .accountName(accountDto.getAccountName())
+                        .currency(accountDto.getCurrency())
+                        .balance(accountDto.getBalance())
                         .status("active")
                         .createdAt(Instant.now())
-                        .userId(1L)
+                        .userId(currentUserId)
                         .build()
         );
         return AccountDtoFactory.makeAccountDto(account);
     }
 
     @Override
-    public AccountDto editAccount(Long accountId, AccountDto updatedAccountDto){
-        AccountModel account = accountRepository.findById(accountId).orElseThrow(
-                () -> new NotFoundException("Аккаунт с данным id не найден")
-        );
-        if(updatedAccountDto.getAccountName() != null){
+    @Transactional
+    public void editAccount(Long accountId, AccountDto updatedAccountDto){
+        AccountModel account = getAccountForCurrentUser(accountId);
+        if(updatedAccountDto.getAccountName() != null && !updatedAccountDto.getAccountName().isBlank()){
             account.setAccountName(updatedAccountDto.getAccountName());
         }
-        if(updatedAccountDto.getStatus() != null){
+        if(updatedAccountDto.getStatus() != null && !updatedAccountDto.getStatus().isBlank()) {
             account.setStatus(updatedAccountDto.getStatus());
         }
-        if(updatedAccountDto.getBalance() != null){
+        if(updatedAccountDto.getBalance() != null) {
             account.setBalance(updatedAccountDto.getBalance());
         }
-        if(updatedAccountDto.getCurrency() != null){
+        if(updatedAccountDto.getCurrency() != null && !updatedAccountDto.getCurrency().isBlank()) {
             account.setCurrency(updatedAccountDto.getCurrency());
         }
-
         AccountModel updatedAccount = accountRepository.saveAndFlush(account);
-        return AccountDtoFactory.makeAccountDto(updatedAccount);
+        AccountDtoFactory.makeAccountDto(updatedAccount);
     }
 
     @Override
     public List<AccountDto> getAllAccounts(){
+        Long currentUserId = userService.getCurrentUserId();
         return  accountRepository.findAll().stream()
-                .map(AccountDtoFactory::makeAccountDto).
-                collect(Collectors.toList());
-    }
-
-
-    @Override
-    public List<AccountDto> getActiveAccounts(){
-        return accountRepository.findAll().stream()
                 .map(AccountDtoFactory::makeAccountDto)
-                .filter(accountDto -> Objects.equals(accountDto.getStatus(), "active"))
+                .filter(accountDto -> Objects.equals(accountDto.getUserId(), currentUserId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteAccount(Long accountId){
-        AccountModel accountModel = accountRepository.findById(accountId).orElseThrow(
-                () -> new BadRequestException("Счета с данным id не существует!")
-        );
-        accountRepository.delete(accountModel);
-    }
-
-
-    @Override
-    public AccountDto closeAccount(Long accountId){
-        AccountModel account = accountRepository.findById(accountId).orElseThrow(
-                () -> new BadRequestException("Счёта с данным id не найдено!")
-        );
-        account.setStatus("closed");
+    public AccountDto getAccount(Long accountId){
+        AccountModel account = getAccountForCurrentUser(accountId);
         return AccountDtoFactory.makeAccountDto(account);
     }
 
     @Override
-    public AccountDto restoreAccount(Long accountId){
-        AccountModel account = accountRepository.findById(accountId).orElseThrow(
-                () -> new BadRequestException("Счёта с данным id не найдено!")
-        );
-        account.setStatus("active");
-        return AccountDtoFactory.makeAccountDto(account);
+    public List<AccountDto> getActiveAccounts(){
+        Long currentUserId = userService.getCurrentUserId();
+        return accountRepository.findAll().stream()
+                .map(AccountDtoFactory::makeAccountDto)
+                .filter(accountDto -> Objects.equals(accountDto.getStatus(), "active") &&
+                        Objects.equals(accountDto.getUserId(), currentUserId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -128,4 +99,63 @@ public class AccountServiceImpl implements AccountService {
                 .filter(accountDto -> Objects.equals(accountDto.getStatus(), "closed"))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void deleteAccount(Long accountId){
+        AccountModel account = getAccountForCurrentUser(accountId);
+        accountRepository.delete(account);
+    }
+
+    @Override
+    public void closeAccount(Long accountId){
+        AccountModel account = getAccountForCurrentUser(accountId);
+        account.setStatus("closed");
+        AccountModel updatedAccount = accountRepository.saveAndFlush(account);
+        AccountDtoFactory.makeAccountDto(updatedAccount);
+    }
+
+    @Override
+    public void restoreAccount(Long accountId){
+        AccountModel account = getAccountForCurrentUser(accountId);
+        account.setStatus("active");
+        AccountModel updatedAccount = accountRepository.saveAndFlush(account);
+        AccountDtoFactory.makeAccountDto(updatedAccount);
+    }
+
+    @Override
+    public void deleteAllAccounts(){
+        Long currentUserId = userService.getCurrentUserId();
+        List<AccountModel> accounts = accountRepository.findAll().stream()
+                .filter(account -> account.getUserId().equals(currentUserId))
+                .toList();
+        accountRepository.deleteAll(accounts);
+    }
+
+    @Override
+    public AccountModel getAccountForCurrentUser(Long accountId){
+        Long currentUser = userService.getCurrentUserId();
+        AccountModel account = accountRepository.findById(accountId).orElseThrow(
+                () -> new NotFoundException("Account not found!"));
+        if(!account.getUserId().equals(currentUser)){
+            throw new AccessDeniedException("You don't have access!");
+        }
+        return account;
+    }
+
+    @Override
+    public void increaseAccountBalance(Long accountId, BigDecimal amount){
+        AccountModel accountModel = getAccountForCurrentUser(accountId);
+        accountModel.setBalance(accountModel.getBalance().add(amount));
+        accountRepository.saveAndFlush(accountModel);
+    }
+
+    @Override
+    public void decreaseAccountBalance(Long accountId, BigDecimal amount){
+        AccountModel accountModel = getAccountForCurrentUser(accountId);
+        accountModel.setBalance(accountModel.getBalance().subtract(amount));
+        accountRepository.saveAndFlush(accountModel);
+    }
+
+
+
 }

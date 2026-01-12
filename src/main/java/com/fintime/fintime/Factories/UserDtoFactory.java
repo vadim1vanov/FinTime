@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserDtoFactory {
 
-    public UserDto makeUserDto(UserModel userModel){
+    public static UserDto makeUserDto(UserModel userModel){
         return UserDto.builder()
                 .id(userModel.getId())
                 .firstName(userModel.getFirstName())
                 .lastName(userModel.getLastName())
-                .email(userModel.getEmail())
+                .username(userModel.getUsername())
                 .password(userModel.getPassword())
-                .createdAt(userModel.getCreatedAt())
+                .countAccounts(userModel.getCountAccounts())
                 .build();
     }
 }

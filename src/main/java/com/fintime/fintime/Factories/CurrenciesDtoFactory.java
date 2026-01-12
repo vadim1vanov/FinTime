@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CurrenciesDtoFactory {
-    public CurrenciesDto makeCurrenciesDto(CurrenciesModel currenciesModel){
+    public static CurrenciesDto makeCurrenciesDto(CurrenciesModel currenciesModel){
         return CurrenciesDto.builder()
                 .id(currenciesModel.getId())
                 .code(currenciesModel.getCode())

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Активные счета</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>Активные счета</h1>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Валюта</th>
+        <th>Баланс</th>
+    </tr>
+    <tr th:each="account : ${activeAccounts}">
+        <td th:text="${account.id}">ID</td>
+        <td th:text="${account.accountName}">Название</td>
+        <td th:text="${account.currency}">Валюта</td>
+        <td th:text="${account.balance}">Баланс</td>
+    </tr>
+</table>
+</body>
+</html>

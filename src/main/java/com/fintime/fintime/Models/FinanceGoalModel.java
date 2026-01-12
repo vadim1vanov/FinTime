@@ -1,22 +1,21 @@
 package com.fintime.fintime.Models;
 
 
+import com.fintime.fintime.Enums.FinanceGoalStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
 
-@Table(name = "goals")
+@Table(name = "finance_goals")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
+@Builder
 public class FinanceGoalModel {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -29,9 +28,10 @@ public class FinanceGoalModel {
     @Column(name = "current_amount")
     private BigDecimal currentAmount;
     private Instant deadline;
-    private String status;
-    @Column(name = "account_id")
-    private Long accountId;
+    @Enumerated(EnumType.STRING)
+    private FinanceGoalStatus status;
+    @Column(name = "percent_goal")
+    private Double percentGoal;
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
 }

@@ -1,10 +1,8 @@
 package com.fintime.fintime.Models;
 
+import com.fintime.fintime.Enums.TransactionType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,16 +14,25 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Builder
 public class TransactionModel {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     @Column(name = "account_id")
     private Long accountId;
+    @Column(name = "user_id")
+    private Long userId;
+    @Column(name = "account_target_id")
+    private Long accountTargetId;
     private BigDecimal amount;
-    @Column(name = "transaction_type")
-    private String transactionalType;
+    @Column(name = "finance_goal_id")
+    private Long financeGoalId;
     private String description;
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
+    @Column(name = "transaction_type")
+    @Enumerated(EnumType.STRING)
+    TransactionType transactionType;
+
 }

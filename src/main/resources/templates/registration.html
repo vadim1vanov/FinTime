@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+</head>
+<body>
+<div style="color: red" th:if="${param.error}">
+    Registration error: <span th:text="${param.error}"></span>
+</div>
+<form action="/create/user" method="post">
+    <label for="firstName">First Name:
+        <input id="firstName" type="text" name="firstName" required>
+    </label><br>
+    <label for="lastName">Last Name:
+        <input id="lastName" type="text" name="lastName" required>
+    </label><br>
+    <label for="username">Email:
+        <input id="username" type="email" name="username" required>
+    </label><br>
+    <label for="password">Password:
+        <input id="password" type="password" name="password" required>
+    </label><br>
+    <button type="submit">Register</button>
+</form>
+<form action="/login">
+    <button type="submit">Back to Login</button>
+</form>
+</body>
+</html>

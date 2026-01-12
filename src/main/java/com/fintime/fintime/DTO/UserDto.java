@@ -23,10 +23,8 @@ public class UserDto {
     @JsonProperty("last_name")
     String lastName;
     @NonNull
-    String email;
+    String username;
     @NonNull
     String password;
-    @NonNull
-    @JsonProperty("created_at")
-    Instant createdAt;
+    Long countAccounts;
 }
