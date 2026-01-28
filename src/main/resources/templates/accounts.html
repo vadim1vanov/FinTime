@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Accounts List</title>
+    <meta charset="UTF-8" />
+</head>
+<body>
+<h1>All Accounts</h1>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Account Name</th>
+        <th>Currency</th>
+        <th>Balance</th>
+        <th>Status</th>
+        <th>Created At</th>
+    </tr>
+    <tr th:each="account : ${accounts}">
+        <td th:text="${account.id}">ID</td>
+        <td th:text="${account.userId}">User ID</td>
+        <td th:text="${account.accountName}">Name</td>
+        <td th:text="${account.currency}">Currency</td>
+        <td th:text="${account.balance}">Balance</td>
+        <td th:text="${account.status}">Status</td>
+        <td th:text="${#dates.format(account.createdAt, 'dd-MM-yyyy HH:mm:ss')}">Created</td>
+    </tr>
+</table>
+</body>
+</html>

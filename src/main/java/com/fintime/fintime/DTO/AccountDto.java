@@ -33,4 +33,7 @@ public class AccountDto {
     @NonNull
     @JsonProperty("created_at")
     Instant createdAt;
+    @NonNull
+    @JsonProperty("account_position")
+    private Integer accountPosition;
 }

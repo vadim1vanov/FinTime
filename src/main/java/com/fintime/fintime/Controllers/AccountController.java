@@ -89,6 +89,13 @@ public class AccountController {
         accountService.deleteAllAccounts();
     }
 
+    @PostMapping("/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reorderAccounts(@RequestBody List<AccountDto> newOrder) {
+        accountService.reorderAccounts(newOrder);
+    }
+
+
 
 
 }

@@ -16,6 +16,7 @@ public class AccountDtoFactory {
                 .currency(accountModel.getCurrency())
                 .balance(accountModel.getBalance())
                 .status(accountModel.getStatus())
+                .accountPosition(accountModel.getAccountPosition())
                 .createdAt(accountModel.getCreatedAt())
                 .build();
     }

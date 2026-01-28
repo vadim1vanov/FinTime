@@ -32,6 +32,6 @@ public class TransactionDto {
     @JsonProperty("created_at")
     Instant createdAt;
     @JsonProperty("transaction_type")
-    @NonNull
+    //    @NonNull
     TransactionType transactionType;
 }

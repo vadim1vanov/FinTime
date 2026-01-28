@@ -20,4 +20,6 @@ public interface AccountService {
     AccountModel getAccountForCurrentUser(Long accountId);
     void increaseAccountBalance(Long accountId, BigDecimal amount);
     void decreaseAccountBalance(Long accountId, BigDecimal amount);
+    void reorderAccounts(List<AccountDto> newOrder);
+
 }

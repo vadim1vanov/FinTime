@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -29,11 +30,18 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
+    @Transactional
     public AccountDto createAccount(AccountDto accountDto){
         Long currentUserId = userService.getCurrentUserId();
+
         if(accountRepository.findByAccountName(accountDto.getAccountName()).isPresent()) {
             throw new BadRequestException("Счёт с данным названием уже создан!");
         }
+        List<AccountModel> accountModels = accountRepository.findAll().stream()
+                        .filter(accountModel -> accountModel.getUserId().equals(currentUserId))
+                        .toList();
+
+        accountRepository.shiftPositionsDown(currentUserId);
         AccountModel account = accountRepository.saveAndFlush(
                 AccountModel.builder()
                         .accountName(accountDto.getAccountName())
@@ -42,10 +50,12 @@ public class AccountServiceImpl implements AccountService {
                         .status("active")
                         .createdAt(Instant.now())
                         .userId(currentUserId)
+                        .accountPosition(accountModels.size() + 1)
                         .build()
         );
         return AccountDtoFactory.makeAccountDto(account);
     }
+
 
     @Override
     @Transactional
@@ -154,6 +164,28 @@ public class AccountServiceImpl implements AccountService {
         AccountModel accountModel = getAccountForCurrentUser(accountId);
         accountModel.setBalance(accountModel.getBalance().subtract(amount));
         accountRepository.saveAndFlush(accountModel);
+    }
+
+    @Override
+    @Transactional
+    public void reorderAccounts(List<AccountDto> newOrder) {
+        Long currentUserId = userService.getCurrentUserId();
+        List<AccountModel> userAccounts = accountRepository.findAll().stream()
+                .filter(accountModel -> accountModel.getUserId().equals(currentUserId))
+                .toList();
+
+        Map<Long, AccountModel> accountMap = userAccounts.stream()
+                .collect(Collectors.toMap(AccountModel::getId, a -> a));
+
+        for (int i = 0; i < newOrder.size(); i++) {
+            AccountDto dto = newOrder.get(i);
+            AccountModel account = accountMap.get(dto.getId());
+            if (account != null) {
+                account.setAccountPosition(i);
+            }
+        }
+
+        accountRepository.saveAll(userAccounts);
     }
 
 
