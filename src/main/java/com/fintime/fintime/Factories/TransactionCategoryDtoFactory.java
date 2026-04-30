@@ -12,6 +12,7 @@ public class TransactionCategoryDtoFactory {
                 .transactionType(transactionCategoryModel.getTransactionType())
                 .categoryName(transactionCategoryModel.getName())
                 .userId(transactionCategoryModel.getUserId())
+                .categoryScope(transactionCategoryModel.getCategoryScope())
                 .build();
     }
 }

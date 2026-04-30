@@ -3,6 +3,7 @@ package com.fintime.fintime.DTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fintime.fintime.Enums.TransactionType;
+import com.fintime.fintime.Models.TransactionCategoryModel;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -34,4 +35,6 @@ public class TransactionDto {
     @JsonProperty("transaction_type")
     //    @NonNull
     TransactionType transactionType;
+    @JsonProperty("category_name")
+    String categoryName;
 }

@@ -11,10 +11,7 @@ import com.fintime.fintime.Models.FinanceGoalModel;
 import com.fintime.fintime.Models.TransactionModel;
 import com.fintime.fintime.Repository.AccountRepository;
 import com.fintime.fintime.Repository.TransactionRepository;
-import com.fintime.fintime.Services.AccountService;
-import com.fintime.fintime.Services.FinanceGoalService;
-import com.fintime.fintime.Services.TransactionService;
-import com.fintime.fintime.Services.UserService;
+import com.fintime.fintime.Services.*;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +33,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserService userService;
     private final AccountService accountService;
     private final FinanceGoalService financeGoalService;
+    private final TransactionCategoryService transactionCategoryService;
 
     @Override
     public List<TransactionDto> getAllTransactionsByAccount(Long accountId) {
@@ -58,6 +56,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .userId(account.getUserId())
                         .description(transactionDto.getDescription())
                         .createdAt(Instant.now())
+                        .categoryName(transactionDto.getCategoryName())
                         .build()
         );
         return TransactionDtoFactory.makeTransactionDto(transaction);

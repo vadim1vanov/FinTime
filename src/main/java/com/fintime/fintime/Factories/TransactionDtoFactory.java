@@ -18,6 +18,7 @@ public class TransactionDtoFactory {
                 .description(transactionModel.getDescription())
                 .createdAt(transactionModel.getCreatedAt())
                 .financeGoalId(transactionModel.getFinanceGoalId())
+                .categoryName(transactionModel.getCategoryName())
                 .build();
     }
 }

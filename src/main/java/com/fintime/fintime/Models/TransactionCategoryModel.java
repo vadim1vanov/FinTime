@@ -22,4 +22,6 @@ public class TransactionCategoryModel {
     private String name;
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
+    @Column(name = "category_scope")
+    private String categoryScope;
 }

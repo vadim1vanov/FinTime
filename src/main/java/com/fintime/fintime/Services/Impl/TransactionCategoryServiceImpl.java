@@ -33,6 +33,7 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
                                 .userId(currentUserId)
                                 .name(transactionCategoryDto.getCategoryName())
                                 .transactionType(transactionCategoryDto.getTransactionType())
+                                .categoryScope("CUSTOM")
                                 .build()
                 );
         return TransactionCategoryDtoFactory.makeTransactionCategoryDto(transactionCategoryModel);
@@ -45,7 +46,7 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
                 .findById(transactionCategoryId).orElseThrow(
             () -> new NotFoundException("Custom transaction category not found!"));
         if(!transactionCategoryModel.getUserId().equals(currentUserId)){
-            throw  new AccessDeniedException("You don't have access!");
+            throw new AccessDeniedException("You don't have access!");
         }
         return transactionCategoryModel;
     }
@@ -64,14 +65,14 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
         transactionCategoryRepository.saveAndFlush(transactionCategoryModel);
     }
 
-    @Override
-    public List<TransactionCategoryDto> getIncomeTransactionCategories(){
-        return transactionCategoryRepository.findAll().stream()
-                .map(TransactionCategoryDtoFactory::makeTransactionCategoryDto)
-                .filter(transactionCategoryDto ->
-                        transactionCategoryDto.getTransactionType().equals(TransactionType.INCOME))
-                .toList();
-    }
+//    @Override
+//    public List<TransactionCategoryDto> getIncomeTransactionCategories(){
+//        return transactionCategoryRepository.findAll().stream()
+//                .map(TransactionCategoryDtoFactory::makeTransactionCategoryDto)
+//                .filter(transactionCategoryDto ->
+//                        transactionCategoryDto.getTransactionType().equals(TransactionType.INCOME))
+//                .toList();
+//    }
 
     @Override
     public List<TransactionCategoryDto> getIncomeTransactionCategories(Long userId){
@@ -83,6 +84,24 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
                         transactionCategoryDto.getUserId().equals(currentUserId))
                 .toList();
     }
+
+    @Override
+    public List<TransactionCategoryDto> getAllIncomeTransactionCategory(){
+        Long currentUserId = userService.getCurrentUserId();
+        return transactionCategoryRepository.getAllTransactionCategory(currentUserId, TransactionType.INCOME.name()).stream()
+                .map(TransactionCategoryDtoFactory::makeTransactionCategoryDto)
+                .toList();
+    }
+
+    @Override
+    public List<TransactionCategoryDto> getAllExpenseTransactionCategory(){
+        Long currentUserId = userService.getCurrentUserId();
+        return transactionCategoryRepository.getAllTransactionCategory(currentUserId, TransactionType.EXPENSE.name()).stream()
+                .map(TransactionCategoryDtoFactory::makeTransactionCategoryDto)
+                .toList();
+    }
+
+
 
 
 

@@ -34,5 +34,7 @@ public class TransactionModel {
     @Column(name = "transaction_type")
     @Enumerated(EnumType.STRING)
     TransactionType transactionType;
+    @Column(name = "category_name")
+    private String categoryName;
 
 }

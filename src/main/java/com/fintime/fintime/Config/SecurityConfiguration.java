@@ -44,7 +44,8 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable);
+//                .httpBasic(AbstractHttpConfigurer::disable);
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }

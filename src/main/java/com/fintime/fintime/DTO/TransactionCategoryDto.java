@@ -24,4 +24,7 @@ public class TransactionCategoryDto {
     @JsonProperty("category_name")
     @NonNull
     String categoryName;
+    @NonNull
+    @JsonProperty("category_scope")
+    String categoryScope;
 }
