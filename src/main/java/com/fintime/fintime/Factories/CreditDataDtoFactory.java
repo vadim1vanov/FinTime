@@ -1,29 +1,26 @@
 package com.fintime.fintime.Factories;
 
-import com.fintime.fintime.DTO.CreditDto;
+import com.fintime.fintime.DTO.CreditDataDto;
+
 import com.fintime.fintime.Models.CreditModel;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreditDtoFactory {
-    public static CreditDto makeCreditDto(CreditModel creditModel){
-        return CreditDto.builder()
+public class CreditDataDtoFactory {
+    public static CreditDataDto makeCreditDataDto(CreditModel creditModel){
+        return CreditDataDto.builder()
                 .id(creditModel.getId())
                 .accountId(creditModel.getAccountId())
                 .userId(creditModel.getUserId())
                 .principalAmount(creditModel.getPrincipalAmount())
                 .interestRate(creditModel.getInterestRate())
                 .termMonths(creditModel.getTermMonths())
-                .monthlyPayment(creditModel.getMonthlyPayment())
-                .remainingBalance(creditModel.getRemainingBalance())
-                .accruedInterest(creditModel.getAccruedInterest())
-                .penaltyAmount(creditModel.getPenaltyAmount())
                 .startDate(creditModel.getStartDate())
                 .endDate(creditModel.getEndDate())
-                .nextPaymentDate(creditModel.getNextPaymentDate())
                 .type(creditModel.getType())
                 .status(creditModel.getStatus())
                 .purpose(creditModel.getPurpose())
+                .remainingBalance(creditModel.getRemainingBalance())
                 .createdAt(creditModel.getCreatedAt())
                 .build();
     }

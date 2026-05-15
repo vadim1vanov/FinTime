@@ -30,20 +30,17 @@ public class CreditModel {
     private BigDecimal interestRate;        // Процентная ставка
     @Column(name = "term_months")
     private Integer termMonths;             // Срок кредита в месяцах
-    @Column(name = "monthly_payment")
-    private BigDecimal monthlyPayment;      // Ежемесячный платеж
-    @Column(name = "remaining_balance")
-    private BigDecimal remainingBalance;    // Остаток долга
-    @Column(name = "accrued_interest")
-    private BigDecimal accruedInterest;     // Начисленные проценты
-    @Column(name = "penalty_amount")
-    private BigDecimal penaltyAmount;       // Штрафы/Пени
+    @Column(name ="remaining_balance")
+    private BigDecimal remainingBalance;    //Остаток долга                 ВЫЧ.
+    @Column(name = "paid_interest")
+    private BigDecimal paidInterest;        // Оплаченные проценты          ВЫЧ.
+    @Column(name = "last_payment_date")
+    private LocalDate lastPaymentDate;      // Дата последнего платежа
     @Column(name = "start_date")
     private LocalDate startDate;            // Дата выдачи кредита
     @Column(name = "end_date")
     private LocalDate endDate;              // Дата окончания кредита
-    @Column(name = "next_payment_date")
-    private LocalDate nextPaymentDate;      // Дата следующего платежа
+
     @Enumerated(EnumType.STRING)
     @Column(name = "credit_type")
     private CreditType type;                // Тип кредита

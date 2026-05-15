@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/user")
 public class UserController {
     private final UserService userService;
 
-    private static final String REGISTER_USER = "/create/user";
 
-    @PostMapping(REGISTER_USER)
+    @PostMapping()
     public ResponseEntity<Void> registerUser(@ModelAttribute UserDto userDto, HttpServletRequest request) {
         userService.createUser(
                 userDto.getFirstName(),
@@ -41,4 +41,19 @@ public class UserController {
 
 
     }
+
+    @PatchMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editUser(@PathVariable Long userId, @RequestBody UserDto userDto){
+        userService.editUser(userId, userDto);
+    }
+
+    @GetMapping
+    public UserDto getUserInfo(){
+        return userService.getUserInfo();
+    }
+
+
+
+
 }

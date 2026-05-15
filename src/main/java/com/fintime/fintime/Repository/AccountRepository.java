@@ -15,4 +15,10 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
     @Query("UPDATE AccountModel a SET a.accountPosition = a.accountPosition + 1 WHERE a.userId = :userId")
     void shiftPositionsDown(@Param("userId") Long userId);
 
+    @Query("SELECT a FROM AccountModel a WHERE a.accountName = :name AND a.userId = :userId")
+    Optional<AccountModel> findByAccountNameAndUserId(
+            @Param("name") String accountName,
+            @Param("userId") Long userId
+    );
+
 }

@@ -1,6 +1,7 @@
 package com.fintime.fintime.Services.Impl;
 
 import com.fintime.fintime.DTO.AccountDto;
+import com.fintime.fintime.DTO.AccountInfoDto;
 import com.fintime.fintime.Exceptions.BadRequestException;
 import com.fintime.fintime.Exceptions.NotFoundException;
 import com.fintime.fintime.Factories.AccountDtoFactory;
@@ -8,6 +9,7 @@ import com.fintime.fintime.Models.AccountModel;
 import com.fintime.fintime.Repository.AccountRepository;
 import com.fintime.fintime.Repository.UserRepository;
 import com.fintime.fintime.Services.AccountService;
+import com.fintime.fintime.Services.TransactionService;
 import com.fintime.fintime.Services.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +36,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto createAccount(AccountDto accountDto){
         Long currentUserId = userService.getCurrentUserId();
 
-        if(accountRepository.findByAccountName(accountDto.getAccountName()).isPresent()) {
+        if (accountRepository.findByAccountNameAndUserId(accountDto.getAccountName(), currentUserId).isPresent()) {
             throw new BadRequestException("Счёт с данным названием уже создан!");
         }
         List<AccountModel> accountModels = accountRepository.findAll().stream()
@@ -187,6 +189,8 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.saveAll(userAccounts);
     }
+
+
 
 
 

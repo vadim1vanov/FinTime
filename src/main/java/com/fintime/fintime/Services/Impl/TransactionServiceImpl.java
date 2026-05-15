@@ -19,6 +19,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -181,6 +183,81 @@ public class TransactionServiceImpl implements TransactionService {
                         .build()
         );
         return TransactionDtoFactory.makeTransactionDto(transactionModel);
+    }
+
+
+    @Override
+    public BigDecimal calculateTopUpSumLastMonth(Long accountId) {
+        Instant from = Instant.now().minus(Duration.ofDays(30));
+        Instant to = Instant.now();
+
+        return transactionRepository.findAll().stream()
+                .filter(t -> Objects.equals(t.getAccountId(), accountId))
+                .filter(t -> t.getTransactionType().equals(TransactionType.INCOME))
+                .filter(t -> t.getCreatedAt() != null)
+                .filter(t -> !t.getCreatedAt().isBefore(from))
+                .filter(t -> t.getCreatedAt().isBefore(to))
+                .map(TransactionModel::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public BigDecimal calculateExpenseSumLastMonth(Long accountId) {
+        Instant from = Instant.now().minus(Duration.ofDays(30));
+        Instant to   = Instant.now();
+
+        return transactionRepository.findAll().stream()
+                .filter(t -> Objects.equals(t.getAccountId(), accountId))
+                .filter(t -> t.getTransactionType().equals(TransactionType.EXPENSE))
+                .filter(t -> t.getCreatedAt() != null)
+                .filter(t -> !t.getCreatedAt().isBefore(from))
+                .filter(t -> t.getCreatedAt().isBefore(to))
+                .map(TransactionModel::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public BigDecimal largestIncome(Long accountId) {
+        Optional<BigDecimal> max = transactionRepository.findAll().stream()
+                .filter(t -> Objects.equals(t.getAccountId(), accountId))
+                .filter(t -> t.getTransactionType().equals(TransactionType.INCOME))
+                .map(TransactionModel::getAmount)
+                .max(BigDecimal::compareTo);
+
+        return max.orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public BigDecimal largestExpense(Long accountId) {
+        Optional<BigDecimal> max = transactionRepository.findAll().stream()
+                .filter(t -> Objects.equals(t.getAccountId(), accountId))
+                .filter(t -> t.getTransactionType().equals(TransactionType.EXPENSE))
+                .map(TransactionModel::getAmount)
+                .max(BigDecimal::compareTo);
+
+        return max.orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public BigDecimal calculateTotalIncome(Long accountId) {
+        return transactionRepository.findAll().stream()
+                .filter(t -> Objects.equals(t.getAccountId(), accountId))
+                .filter(t -> t.getTransactionType().equals(TransactionType.INCOME))
+                .map(TransactionModel::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public BigDecimal calculateTotalExpense(Long accountId) {
+        return transactionRepository.findAll().stream()
+                .filter(t -> Objects.equals(t.getAccountId(), accountId))
+                .filter(t -> t.getTransactionType().equals(TransactionType.EXPENSE))
+                .map(TransactionModel::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
 

@@ -4,6 +4,7 @@ package com.fintime.fintime.Services;
 import com.fintime.fintime.DTO.TransactionDto;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface TransactionService {
@@ -18,4 +19,11 @@ public interface TransactionService {
     TransactionDto createExpenseTransaction(Long accountId, TransactionDto transactionDto);
     TransactionDto createExpenseTransaction(Long accountId, TransactionDto transactionDto, Long financeGoalId);
     TransactionDto createIncomeFinanceGoalTransaction(TransactionDto transactionDto, Long financeGoalId);
+    BigDecimal calculateTopUpSumLastMonth(Long accountId);
+    BigDecimal calculateExpenseSumLastMonth(Long accountId);
+    BigDecimal largestIncome(Long accountId);
+    BigDecimal largestExpense(Long accountId);
+    BigDecimal calculateTotalIncome(Long accountId);
+    BigDecimal calculateTotalExpense(Long accountId);
+
 }

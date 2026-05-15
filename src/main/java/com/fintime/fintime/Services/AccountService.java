@@ -1,6 +1,7 @@
 package com.fintime.fintime.Services;
 
 import com.fintime.fintime.DTO.AccountDto;
+import com.fintime.fintime.DTO.AccountInfoDto;
 import com.fintime.fintime.Models.AccountModel;
 
 import java.math.BigDecimal;

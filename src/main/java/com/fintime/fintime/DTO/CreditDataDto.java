@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreditDto {
+public class CreditDataDto {
     @NonNull
     Long id;
     @JsonProperty("account_id")
@@ -23,31 +23,30 @@ public class CreditDto {
     @JsonProperty("user_id")
     Long userId;
     @JsonProperty("principal_amount")
-    BigDecimal principalAmount;
+    BigDecimal  principalAmount;
     @JsonProperty("interest_rate")
     BigDecimal interestRate;
     @JsonProperty("term_months")
     Integer termMonths;
-    @JsonProperty("monthly_payment")
-    BigDecimal monthlyPayment;
-    @JsonProperty("remaining_balance")
-    BigDecimal remainingBalance;
+    @JsonProperty("last_payment_date")
+    LocalDate lastPaymentDate;
     @JsonProperty("paid_interest")
     BigDecimal paidInterest;
     @JsonProperty("next_payment_date")
     LocalDate nextPaymentDate;
+    @JsonProperty("remaining_balance")
+    BigDecimal remainingBalance;
+
+
     @JsonProperty("start_date")
     LocalDate startDate;
-    @JsonProperty("last_payment_date")
-    LocalDate lastPaymentDate;
     @JsonProperty("end_date")
     LocalDate endDate;
+    BigDecimal progress;
     @JsonProperty("credit_type")
     CreditType type;
     CreditStatus status;
     String purpose;
     @JsonProperty("created_at")
     Instant createdAt;
-    @JsonProperty
-    BigDecimal progress;
 }

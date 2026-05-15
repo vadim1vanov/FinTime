@@ -2,6 +2,7 @@ package com.fintime.fintime.Controllers;
 
 import com.fintime.fintime.DTO.*;
 import com.fintime.fintime.Repository.*;
+import com.fintime.fintime.Services.AccountAnalyticsService;
 import com.fintime.fintime.Services.AccountService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,8 @@ import java.util.List;
 @RequestMapping("api/accounts")
 @RequiredArgsConstructor
 public class AccountController {
-    final AccountService accountService;
+    private final AccountService accountService;
+    private final AccountAnalyticsService accountAnalyticsService;
 
     //СОЗДАНИЕ СЧЁТА
     @PostMapping
@@ -93,6 +95,11 @@ public class AccountController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reorderAccounts(@RequestBody List<AccountDto> newOrder) {
         accountService.reorderAccounts(newOrder);
+    }
+
+    @GetMapping("/{accountId}/info")
+    public AccountInfoDto getAccountInfo(@PathVariable Long accountId){
+        return accountAnalyticsService.getAccountAnalytics(accountId);
     }
 
 

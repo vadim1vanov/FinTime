@@ -69,11 +69,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto editUser(Long userId, UserDto userDto) {
+        Long currentUserId = getCurrentUserId();
+        if(!currentUserId.equals(userId)){
+            throw new BadRequestException("You don't have access!");
+        }
         UserModel user = userRepository.findById(userId).orElseThrow(
                 () ->  new BadRequestException("User with id " + userId + " not exist!" )
         );
         if(userDto.getFirstName() != null){
-            user.setUsername(userDto.getUsername());
+            user.setFirstName(userDto.getFirstName());
         }
         if(userDto.getLastName() != null){
             user.setLastName(userDto.getLastName());
@@ -103,6 +107,16 @@ public class UserServiceImpl implements UserService {
         );
         return current_user.getId();
     }
+
+    @Override
+    public UserDto getUserInfo(){
+        Long currentUserId = getCurrentUserId();
+        UserModel user = userRepository.findById(currentUserId).orElseThrow(
+                () -> new NotFoundException("User not found!")
+        );
+        return UserDtoFactory.makeUserDto(user);
+    }
+
 
 
 
