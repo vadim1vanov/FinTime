@@ -36,5 +36,7 @@ public class TransactionModel {
     TransactionType transactionType;
     @Column(name = "category_name")
     private String categoryName;
+    @Column(name = "balance_after")
+    private BigDecimal balanceAfter;
 
 }

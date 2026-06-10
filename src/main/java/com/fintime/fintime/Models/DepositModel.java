@@ -57,4 +57,8 @@ public class DepositModel {
     private DepositTermType termType;
     @Column(name = "last_interest_accrual_date")
     private LocalDate lastInterestAccrualDate;
+    @Column(name = "current_amount")
+    private BigDecimal currentAmount;
+    @Column(name = "next_interest_accrual_date")
+    private LocalDate nextInterestAccrualDate;
 }

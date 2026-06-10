@@ -37,4 +37,7 @@ public class TransactionDto {
     TransactionType transactionType;
     @JsonProperty("category_name")
     String categoryName;
+
+    @JsonProperty("balance_after")
+    BigDecimal balanceAfter;
 }

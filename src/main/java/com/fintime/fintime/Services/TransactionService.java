@@ -19,11 +19,11 @@ public interface TransactionService {
     TransactionDto createExpenseTransaction(Long accountId, TransactionDto transactionDto);
     TransactionDto createExpenseTransaction(Long accountId, TransactionDto transactionDto, Long financeGoalId);
     TransactionDto createIncomeFinanceGoalTransaction(TransactionDto transactionDto, Long financeGoalId);
-    BigDecimal calculateTopUpSumLastMonth(Long accountId);
-    BigDecimal calculateExpenseSumLastMonth(Long accountId);
-    BigDecimal largestIncome(Long accountId);
-    BigDecimal largestExpense(Long accountId);
-    BigDecimal calculateTotalIncome(Long accountId);
-    BigDecimal calculateTotalExpense(Long accountId);
+//    BigDecimal calculateTopUpSumLastMonth(Long accountId);
+//    BigDecimal calculateExpenseSumLastMonth(Long accountId);
+//    BigDecimal largestIncome(Long accountId);
+//    BigDecimal largestExpense(Long accountId);
+//    BigDecimal calculateTotalIncome(Long accountId);
+//    BigDecimal calculateTotalExpense(Long accountId);
 
 }

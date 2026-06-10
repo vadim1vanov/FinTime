@@ -1,17 +1,13 @@
 package com.fintime.fintime.Controllers;
 
 import com.fintime.fintime.DTO.*;
-import com.fintime.fintime.Repository.*;
-import com.fintime.fintime.Services.AccountAnalyticsService;
+import com.fintime.fintime.Services.AnalyticService;
 import com.fintime.fintime.Services.AccountService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.math.BigDecimal;
+
 import java.net.URI;
 import java.util.List;
 
@@ -21,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
-    private final AccountAnalyticsService accountAnalyticsService;
+    private final AnalyticService analyticService;
 
     //СОЗДАНИЕ СЧЁТА
     @PostMapping
@@ -99,7 +95,7 @@ public class AccountController {
 
     @GetMapping("/{accountId}/info")
     public AccountInfoDto getAccountInfo(@PathVariable Long accountId){
-        return accountAnalyticsService.getAccountAnalytics(accountId);
+        return analyticService.getAccountAnalytics(accountId);
     }
 
 

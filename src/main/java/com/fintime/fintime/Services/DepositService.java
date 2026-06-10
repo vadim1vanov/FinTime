@@ -51,4 +51,5 @@ public interface DepositService {
      BigDecimal calculateDepositProgress(Long depositId);
 
      void closeDeposit(Long depositId);
+
 }

@@ -24,7 +24,8 @@ public class DepositDtoFactory {
                 .termType(depositModel.getTermType())
                 .replenishmentFrequency(depositModel.getReplenishmentFrequency())
                 .endDate(depositModel.getEndDate())
-
+                .currentAmount(depositModel.getPrincipalAmount())
+                .nextInterestAccrualDate(depositModel.getNextInterestAccrualDate())
                 .build();
     }
 }

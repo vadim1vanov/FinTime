@@ -50,6 +50,8 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDto createIncomeTransaction(Long accountId, TransactionDto transactionDto){
         AccountModel account = accountService.getAccountForCurrentUser(accountId);
         accountService.increaseAccountBalance(accountId, transactionDto.getAmount());
+        AccountModel updated =
+                accountService.getAccountForCurrentUser(accountId);
         TransactionModel transaction = transactionRepository.saveAndFlush(
                 TransactionModel.builder()
                         .amount(transactionDto.getAmount())
@@ -59,6 +61,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .description(transactionDto.getDescription())
                         .createdAt(Instant.now())
                         .categoryName(transactionDto.getCategoryName())
+                        .balanceAfter(updated.getBalance())
                         .build()
         );
         return TransactionDtoFactory.makeTransactionDto(transaction);
@@ -97,6 +100,8 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDto createExpenseTransaction(Long accountId, TransactionDto transactionDto, Long financeGoalId){
         AccountModel account = accountService.getAccountForCurrentUser(accountId);
         accountService.decreaseAccountBalance(accountId, transactionDto.getAmount());
+        AccountModel updated =
+                accountService.getAccountForCurrentUser(accountId);
         TransactionModel transactional = transactionRepository.saveAndFlush(
                 TransactionModel.builder()
                         .amount(transactionDto.getAmount())
@@ -106,6 +111,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .createdAt(Instant.now())
                         .financeGoalId(financeGoalId)
                         .accountId(accountId)
+                        .balanceAfter(updated.getBalance())
                         .build()
         );
         return TransactionDtoFactory.makeTransactionDto(transactional);
@@ -116,6 +122,8 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDto createExpenseTransaction(Long accountId, TransactionDto transactionDto){
         AccountModel account = accountService.getAccountForCurrentUser(accountId);
         accountService.decreaseAccountBalance(accountId, transactionDto.getAmount());
+        AccountModel updated =
+                accountService.getAccountForCurrentUser(accountId);
         TransactionModel transactional = transactionRepository.saveAndFlush(
                 TransactionModel.builder()
                         .amount(transactionDto.getAmount())
@@ -124,7 +132,9 @@ public class TransactionServiceImpl implements TransactionService {
                         .userId(account.getUserId())
                         .createdAt(Instant.now())
                         .financeGoalId(transactionDto.getFinanceGoalId())
+                        .categoryName(transactionDto.getCategoryName())
                         .accountId(accountId)
+                        .balanceAfter(updated.getBalance())
                         .build()
         );
         return TransactionDtoFactory.makeTransactionDto(transactional);
@@ -136,6 +146,8 @@ public class TransactionServiceImpl implements TransactionService {
         AccountModel targetAccount = accountService.getAccountForCurrentUser(targetAccountId);
         accountService.decreaseAccountBalance(accountId, transactionDto.getAmount());
         accountService.increaseAccountBalance(targetAccountId, transactionDto.getAmount());
+        AccountModel updated =
+                accountService.getAccountForCurrentUser(accountId);
         TransactionModel transactional = transactionRepository.saveAndFlush(
                 TransactionModel.builder()
                         .transactionType(TransactionType.TRANSFER)
@@ -145,6 +157,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .amount(transactionDto.getAmount())
                         .accountId(accountId)
                         .accountTargetId(targetAccountId)
+                        .balanceAfter(updated.getBalance())
                         .build()
         );
         return TransactionDtoFactory.makeTransactionDto(transactional);
@@ -172,6 +185,7 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDto createIncomeFinanceGoalTransaction(TransactionDto transactionDto, Long financeGoalId){
         FinanceGoalModel financeGoalModel = financeGoalService.getFinanceGoalForCurrentUser(financeGoalId);
         financeGoalService.increaseFinanceGoal(financeGoalId, transactionDto.getAmount());
+
         TransactionModel transactionModel = transactionRepository.saveAndFlush(
                 TransactionModel.builder()
                         .transactionType(TransactionType.INCOME_FINANCE_GOAL)
@@ -186,79 +200,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
 
-    @Override
-    public BigDecimal calculateTopUpSumLastMonth(Long accountId) {
-        Instant from = Instant.now().minus(Duration.ofDays(30));
-        Instant to = Instant.now();
 
-        return transactionRepository.findAll().stream()
-                .filter(t -> Objects.equals(t.getAccountId(), accountId))
-                .filter(t -> t.getTransactionType().equals(TransactionType.INCOME))
-                .filter(t -> t.getCreatedAt() != null)
-                .filter(t -> !t.getCreatedAt().isBefore(from))
-                .filter(t -> t.getCreatedAt().isBefore(to))
-                .map(TransactionModel::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    @Override
-    public BigDecimal calculateExpenseSumLastMonth(Long accountId) {
-        Instant from = Instant.now().minus(Duration.ofDays(30));
-        Instant to   = Instant.now();
-
-        return transactionRepository.findAll().stream()
-                .filter(t -> Objects.equals(t.getAccountId(), accountId))
-                .filter(t -> t.getTransactionType().equals(TransactionType.EXPENSE))
-                .filter(t -> t.getCreatedAt() != null)
-                .filter(t -> !t.getCreatedAt().isBefore(from))
-                .filter(t -> t.getCreatedAt().isBefore(to))
-                .map(TransactionModel::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    @Override
-    public BigDecimal largestIncome(Long accountId) {
-        Optional<BigDecimal> max = transactionRepository.findAll().stream()
-                .filter(t -> Objects.equals(t.getAccountId(), accountId))
-                .filter(t -> t.getTransactionType().equals(TransactionType.INCOME))
-                .map(TransactionModel::getAmount)
-                .max(BigDecimal::compareTo);
-
-        return max.orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
-    }
-
-    @Override
-    public BigDecimal largestExpense(Long accountId) {
-        Optional<BigDecimal> max = transactionRepository.findAll().stream()
-                .filter(t -> Objects.equals(t.getAccountId(), accountId))
-                .filter(t -> t.getTransactionType().equals(TransactionType.EXPENSE))
-                .map(TransactionModel::getAmount)
-                .max(BigDecimal::compareTo);
-
-        return max.orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
-    }
-
-    @Override
-    public BigDecimal calculateTotalIncome(Long accountId) {
-        return transactionRepository.findAll().stream()
-                .filter(t -> Objects.equals(t.getAccountId(), accountId))
-                .filter(t -> t.getTransactionType().equals(TransactionType.INCOME))
-                .map(TransactionModel::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    @Override
-    public BigDecimal calculateTotalExpense(Long accountId) {
-        return transactionRepository.findAll().stream()
-                .filter(t -> Objects.equals(t.getAccountId(), accountId))
-                .filter(t -> t.getTransactionType().equals(TransactionType.EXPENSE))
-                .map(TransactionModel::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
 
 
 

@@ -63,4 +63,10 @@ public class DepositDto {
     
     @JsonProperty("last_interest_accrual_date")
     LocalDate lastInterestAccrualDate;
+
+    @JsonProperty("current_amount")
+    BigDecimal currentAmount;
+
+    @JsonProperty("next_interest_accrual_date")
+    LocalDate nextInterestAccrualDate;
 }

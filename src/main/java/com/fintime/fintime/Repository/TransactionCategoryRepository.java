@@ -12,8 +12,13 @@ import java.util.Optional;
 
 
 public interface TransactionCategoryRepository extends JpaRepository<TransactionCategoryModel,Long > {
-    Optional<TransactionCategoryModel> findCustomTransactionCategoryByName(String customTransactionCategoryName);
-
+//    Optional<TransactionCategoryModel> findCustomTransactionCategoryByName(String customTransactionCategoryName);
+    Optional<TransactionCategoryModel>
+    findByNameAndUserIdAndCategoryScope(
+            String name,
+            Long userId,
+            String categoryScope
+    );
     @Query(value = "SELECT * FROM transaction_category c WHERE " +
             "(c.category_scope = 'GLOBAL' OR c.user_id = :userId) AND c.transaction_type = :transactionType",
     nativeQuery = true)

@@ -11,6 +11,7 @@ import com.fintime.fintime.Models.DepositModel;
 import com.fintime.fintime.Repository.DepositRepository;
 import com.fintime.fintime.Services.DepositService;
 import com.fintime.fintime.Services.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ public class DepositServiceImpl implements DepositService {
                         .capitalizationFrequency(depositDto.getCapitalizationFrequency())
                         .termType(depositDto.getTermType())
                         .lastInterestAccrualDate(depositDto.getLastInterestAccrualDate())
+                        .currentAmount(depositDto.getPrincipalAmount())
                         .build()
         );
 
@@ -261,6 +263,140 @@ public class DepositServiceImpl implements DepositService {
         deposit.setStatus(DepositStatus.CLOSED);
         deposit.setEndDate(LocalDate.now());
         depositRepository.saveAndFlush(deposit);
+    }
+    private long getPassedPeriods(
+            LocalDate lastDate,
+            LocalDate currentDate,
+            CapitalizationFrequency frequency
+    ) {
+
+        return switch (frequency) {
+
+            case DAILY ->
+                    ChronoUnit.DAYS.between(
+                            lastDate,
+                            currentDate
+                    );
+
+            case WEEKLY ->
+                    ChronoUnit.WEEKS.between(
+                            lastDate,
+                            currentDate
+                    );
+
+            case MONTHLY ->
+                    ChronoUnit.MONTHS.between(
+                            lastDate,
+                            currentDate
+                    );
+
+            case HALF_YEARLY ->
+                    ChronoUnit.MONTHS.between(
+                            lastDate,
+                            currentDate
+                    ) / 6;
+
+            case YEARLY ->
+                    ChronoUnit.YEARS.between(
+                            lastDate,
+                            currentDate
+                    );
+
+            default -> 0;
+        };
+    }
+    private BigDecimal calculatePeriodInterest(
+            BigDecimal amount,
+            BigDecimal annualRate,
+            CapitalizationFrequency frequency
+    ) {
+
+        BigDecimal periodsPerYear;
+
+        switch (frequency) {
+
+            case DAILY ->
+                    periodsPerYear =
+                            BigDecimal.valueOf(365);
+
+            case WEEKLY ->
+                    periodsPerYear =
+                            BigDecimal.valueOf(52);
+
+            case MONTHLY ->
+                    periodsPerYear =
+                            BigDecimal.valueOf(12);
+
+            case HALF_YEARLY ->
+                    periodsPerYear =
+                            BigDecimal.valueOf(2);
+
+            case YEARLY ->
+                    periodsPerYear =
+                            BigDecimal.ONE;
+
+            default ->
+                    periodsPerYear =
+                            BigDecimal.ONE;
+        }
+
+        return amount
+                .multiply(
+                        annualRate.divide(
+                                BigDecimal.valueOf(100),
+                                10,
+                                RoundingMode.HALF_UP
+                        )
+                )
+                .divide(
+                        periodsPerYear,
+                        10,
+                        RoundingMode.HALF_UP
+                );
+    }
+    @Transactional
+    public void accrueInterest(DepositModel deposit) {
+        LocalDate today = LocalDate.now();
+
+        if (deposit.getNextInterestAccrualDate() == null) {
+            deposit.setNextInterestAccrualDate(
+                    calculateNextDate(deposit.getStartDate(), deposit.getCapitalizationFrequency())
+            );
+        }
+
+        while (!today.isBefore(deposit.getNextInterestAccrualDate())
+                && deposit.getStatus() == DepositStatus.ACTIVE) {
+
+            BigDecimal interest = calculatePeriodInterest(
+                    deposit.getCurrentAmount(),
+                    deposit.getInterestRate(),
+                    deposit.getCapitalizationFrequency()
+            );
+
+            deposit.setCurrentAmount(
+                    deposit.getCurrentAmount().add(interest).setScale(2, RoundingMode.HALF_UP)
+            );
+
+            deposit.setNextInterestAccrualDate(
+                    calculateNextDate(
+                            deposit.getNextInterestAccrualDate(),
+                            deposit.getCapitalizationFrequency()
+                    )
+            );
+        }
+
+        depositRepository.save(deposit);
+    }
+
+    private LocalDate calculateNextDate(LocalDate baseDate, CapitalizationFrequency frequency) {
+        return switch (frequency) {
+            case DAILY -> baseDate.plusDays(1);
+            case WEEKLY -> baseDate.plusWeeks(1);
+            case MONTHLY -> baseDate.plusMonths(1);
+            case HALF_YEARLY -> baseDate.plusMonths(6);
+            case YEARLY -> baseDate.plusYears(1);
+            case NONE -> baseDate;
+        };
     }
 
 }

@@ -23,9 +23,15 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
     @Override
     public TransactionCategoryDto createTransactionCategory(TransactionCategoryDto transactionCategoryDto){
         Long currentUserId = userService.getCurrentUserId();
-        if(transactionCategoryRepository
-                .findCustomTransactionCategoryByName(transactionCategoryDto.getCategoryName()).isPresent()){
-            throw new BadRequestException("Category already created!");
+        if (transactionCategoryRepository
+                .findByNameAndUserIdAndCategoryScope(
+                        transactionCategoryDto.getCategoryName(),
+                        currentUserId,
+                        "CUSTOM"
+                )
+                .isPresent()) {
+
+            throw new BadRequestException("Category already exists!");
         }
         TransactionCategoryModel transactionCategoryModel = transactionCategoryRepository
                 .saveAndFlush(
